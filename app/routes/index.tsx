@@ -140,21 +140,12 @@ export default function Index() {
         <div className="drawer-side bg-base-200">
           <label htmlFor="my-drawer-2" className="drawer-overlay"></label>
 
-          <ul className="menu menu-compact w-80 overflow-y-auto pl-2 text-base-content">
-            <li>
-              <a>Flappy Bird</a>
-            </li>
-            <li>
-              <details>
-                <summary
-                  style={{
-                    listStyle: "none",
-                  }}
-                >
-                  Section title
-                </summary>
-                <p>Here is the content!</p>
-              </details>
+          <ul className="menu menu-compact w-80 overflow-y-auto bg-base-200 pl-2 text-base-content">
+            <li tabIndex={0} className="collapse">
+              <span className="collapse-title">Focus me to see content</span>
+              <p className="collapse-content">
+                tabindex="0" attribute is necessary to make the div focusable
+              </p>
             </li>
             <ul className="menu menu-compact ml-3 overflow-y-auto text-base-content">
               <li className="bordered">
