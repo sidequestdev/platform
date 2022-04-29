@@ -2,7 +2,6 @@ import type { ColorScheme } from "@mantine/core";
 import {
   Accordion,
   ActionIcon,
-  Anchor,
   AppShell,
   Burger,
   Footer,
@@ -14,6 +13,7 @@ import {
   useMantineColorScheme,
   useMantineTheme,
 } from "@mantine/core";
+import { Outlet } from "@remix-run/react";
 import React, { useState } from "react";
 import { MoonStars, Sun } from "tabler-icons-react";
 
@@ -149,11 +149,7 @@ export default function App() {
 
             <Group position="apart" style={{ width: "100%" }}>
               <Logo colorScheme={colorScheme} />
-              <ActionIcon
-                variant="default"
-                onClick={() => toggleColorScheme()}
-                size={40}
-              >
+              <ActionIcon onClick={() => toggleColorScheme()} size={40}>
                 {colorScheme === "dark" ? (
                   <Sun size={24} />
                 ) : (
@@ -165,7 +161,7 @@ export default function App() {
         </Header>
       }
     >
-      <Text>Resize app to see responsive navbar in action</Text>
+      <Outlet />
     </AppShell>
   );
 }
