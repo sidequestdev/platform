@@ -1,6 +1,6 @@
 import type { Stats } from "node:fs";
 import fs from "node:fs/promises";
-import { basename, extname, join } from "node:path";
+import { basename, extname, join, resolve } from "node:path";
 import { normalizePath } from "./normalize-path";
 import { safeReadDir } from "./safe-read-dir";
 
@@ -56,9 +56,16 @@ type File = {
   [key: string]: any;
 };
 
+type DirectoryMetadata = {
+  label: string;
+  position: number;
+  premium?: boolean;
+};
+
 type Directory = {
   type: typeof FileType["DIRECTORY"];
   children: DirectoryEntry[];
+  metadata: DirectoryMetadata;
 
   [key: string]: any;
 };
@@ -74,7 +81,7 @@ const isFile = (
 const isDirectory = (
   stats: Stats,
   _entry: DirectoryEntry
-): _entry is BaseDirectoryEntry & Directory => stats.isFile();
+): _entry is BaseDirectoryEntry & Directory => stats.isDirectory();
 
 /**
  * Collects the files and folders for a directory path into an Object, subject
@@ -101,18 +108,23 @@ export async function directoryTree<
 ): Promise<DirectoryEntry | null>;
 export async function directoryTree<Options extends DirectoryTreeOptions>(
   path: string,
-  options: Options,
+  options?: Options,
   currentDepth = 0
 ) {
+  // Initialize the symbolic links array to avoid infinite loops
+  if (options && options?.symlinks === undefined) {
+    options.symlinks = [];
+  }
+
   if (
-    options.depth !== undefined &&
-    options.attributes?.indexOf("size") !== -1
+    options?.depth !== undefined &&
+    options?.attributes?.indexOf("size") !== -1
   ) {
     throw new Error("usage of size attribute with depth option is prohibited");
   }
 
   const name = basename(path);
-  path = options.normalizePath ? normalizePath(path) : path;
+  path = options?.normalizePath ? normalizePath(path) : path;
   const item: BaseDirectoryEntry = {
     name,
     path,
@@ -129,12 +141,12 @@ export async function directoryTree<Options extends DirectoryTreeOptions>(
   }
 
   // Skip if it matches the exclude regex
-  if (options.exclude) {
+  if (options?.exclude) {
     const excludes = Array.isArray(options.exclude)
-      ? options.exclude
+      ? options?.exclude
       : [options.exclude];
 
-    if (excludes.some((exclusion) => exclusion.test(path))) {
+    if (excludes?.some((exclusion) => exclusion.test(path))) {
       return null;
     }
   }
@@ -142,16 +154,13 @@ export async function directoryTree<Options extends DirectoryTreeOptions>(
   if (lstat.isSymbolicLink()) {
     item.isSymbolicLink = true;
     // Skip if symbolic links should not be followed
-    if (options.followSymlinks === false) return null;
-
-    // Initialize the symbolic links array to avoid infinite loops
-    if (!options.symlinks) options = { ...options, symlinks: [] };
+    if (options?.followSymlinks === false) return null;
 
     // Skip if a cyclic symbolic link has been found
-    if (options.symlinks?.find((ino) => ino === lstat.ino)) {
+    if (options?.symlinks?.find((ino) => ino === lstat.ino)) {
       return null;
     } else {
-      options.symlinks?.push(lstat.ino);
+      options?.symlinks?.push(lstat.ino);
     }
   }
 
@@ -159,9 +168,9 @@ export async function directoryTree<Options extends DirectoryTreeOptions>(
     const ext = extname(path).toLowerCase();
 
     // Skip if it does not match the extension regex
-    if (options.extensions && !options.extensions.test(ext)) return null;
+    if (options?.extensions && !options.extensions.test(ext)) return null;
 
-    if (options.attributes != null) {
+    if (options?.attributes != null) {
       options.attributes.forEach((attribute) => {
         switch (attribute) {
           case "extension":
@@ -187,7 +196,7 @@ export async function directoryTree<Options extends DirectoryTreeOptions>(
       return null;
     }
 
-    if (options.depth === undefined || options.depth > currentDepth) {
+    if (options?.depth === undefined || options.depth > currentDepth) {
       item.children = await Promise.all(
         dirData.map((child) =>
           directoryTree(
@@ -203,7 +212,7 @@ export async function directoryTree<Options extends DirectoryTreeOptions>(
       );
     }
 
-    if (options.attributes != null) {
+    if (options?.attributes != null) {
       options.attributes.forEach((attribute) => {
         switch (attribute) {
           case "size":
@@ -221,6 +230,20 @@ export async function directoryTree<Options extends DirectoryTreeOptions>(
       });
     }
 
+    const metadata = item.children.find(
+      (file) => file.name === "metadata.json"
+    );
+
+    if (metadata) {
+      item.metadata = await import(resolve(metadata.path)).then(
+        (m) => m.default
+      );
+
+      item.children = item.children.filter(
+        (entry) => entry.name !== "metadata.json"
+      );
+    }
+
     // if (onEachDirectory) {
     //   onEachDirectory(item, path, stats);
     // }
@@ -230,3 +253,12 @@ export async function directoryTree<Options extends DirectoryTreeOptions>(
 
   return item;
 }
+
+directoryTree("./courses", {
+  attributes: ["size"],
+}).then((results) =>
+  console.dir(results, {
+    compact: false,
+    depth: Infinity,
+  })
+);
