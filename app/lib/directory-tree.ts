@@ -1,44 +1,20 @@
 import type { Stats } from "node:fs";
 import fs from "node:fs/promises";
 import { basename, extname, join } from "node:path";
-import { instanceOfNodeError } from "./type-guards/node-error";
+import { normalizePath } from "./normalize-path";
+import { safeReadDir } from "./safe-read-dir";
 
 const FileType = {
   DIRECTORY: "directory",
   FILE: "file",
 } as const;
 
-async function safeReadDirSync(path: string) {
-  let dirData: string[] = [];
-
-  try {
-    dirData = await fs.readdir(path);
-  } catch (error) {
-    const isNodeError = instanceOfNodeError(error, TypeError);
-
-    if (isNodeError && (error.code == "EACCES" || error.code == "EPERM")) {
-      //User does not have permissions, ignore directory
-      return null;
-    } else {
-      throw error;
-    }
-  }
-
-  return dirData;
-}
-
-/**
- * Normalizes windows style paths by replacing double backslahes with single forward slahes (unix style).
- */
-function normalizePath(path: string) {
-  return path.replace(/\\/g, "/");
-}
-
 type ExtendedStats = Stats & {
   extension: string;
   type: typeof FileType.FILE | typeof FileType.DIRECTORY;
 };
 
+// Remove functions
 type Attribute =
   | {
       [K in keyof ExtendedStats]: ExtendedStats[K] extends Function ? never : K;
@@ -53,6 +29,18 @@ interface DirectoryTreeOptions {
   normalizePath?: boolean;
   symlinks?: number[];
 }
+
+type DirectoryTreeOptionsWithoutAttributes = Omit<
+  DirectoryTreeOptions,
+  "attributes"
+>;
+
+type DirectoryTreeOptionsWithAttributes = Omit<
+  DirectoryTreeOptions,
+  "attributes"
+> & {
+  attributes: NonNullable<DirectoryTreeOptions["attributes"]>;
+};
 
 type BaseDirectoryEntry = {
   path: string;
@@ -88,20 +76,12 @@ const isDirectory = (
   _entry: DirectoryEntry
 ): _entry is BaseDirectoryEntry & Directory => stats.isFile();
 
-type NarrowProperty<T, K extends keyof T, U extends T[K]> = Omit<T, K> & {
-  [P in K]: U;
-};
-
 /**
  * Collects the files and folders for a directory path into an Object, subject
  * to the options supplied, and invoking optional
  */
 export async function directoryTree<
-  Options extends NarrowProperty<
-    DirectoryTreeOptions,
-    "attributes",
-    NonNullable<DirectoryTreeOptions["attributes"]>
-  >
+  Options extends DirectoryTreeOptionsWithAttributes
 >(
   path: string,
   options: Options,
@@ -113,10 +93,10 @@ export async function directoryTree<
   | null
 >;
 export async function directoryTree<
-  Options extends NarrowProperty<DirectoryTreeOptions, "attributes", undefined>
+  Options extends DirectoryTreeOptionsWithoutAttributes
 >(
   path: string,
-  options: Options,
+  options?: Options,
   currentDepth?: number
 ): Promise<DirectoryEntry | null>;
 export async function directoryTree<Options extends DirectoryTreeOptions>(
@@ -201,7 +181,7 @@ export async function directoryTree<Options extends DirectoryTreeOptions>(
     //   onEachFile(item, path, stats);
     // }
   } else if (isDirectory(stats, item)) {
-    let dirData = await safeReadDirSync(path);
+    let dirData = await safeReadDir(path);
 
     if (dirData === null) {
       return null;
@@ -250,14 +230,3 @@ export async function directoryTree<Options extends DirectoryTreeOptions>(
 
   return item;
 }
-
-directoryTree("./", {
-  attributes: ["atime", "atimeMs"],
-}).then((entry) => {
-  entry?.atime;
-  entry?.type;
-
-  if (entry?.type === "directory") {
-    entry.children;
-  }
-});
