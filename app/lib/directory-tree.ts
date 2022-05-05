@@ -255,7 +255,7 @@ export async function directoryTree<Options extends DirectoryTreeOptions>(
 }
 
 directoryTree("./courses", {
-  attributes: ["size"],
+  attributes: ["size", "extension", "type"],
 }).then((results) =>
   console.dir(results, {
     compact: false,
