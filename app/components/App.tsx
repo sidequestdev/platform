@@ -1,167 +1,96 @@
-import type { ColorScheme } from "@mantine/core";
-import {
-  Accordion,
-  ActionIcon,
-  AppShell,
-  Burger,
-  Footer,
-  Group,
-  Header,
-  MediaQuery,
-  Navbar,
-  Text,
-  useMantineColorScheme,
-  useMantineTheme,
-} from "@mantine/core";
-import { Outlet } from "@remix-run/react";
-import React, { useState } from "react";
-import { MoonStars, Sun } from "tabler-icons-react";
+import React from "react";
+import { Features } from "./Features";
+import { Footer } from "./Footer";
+import { HeaderResponsive } from "./Header";
+import { Hero } from "./Hero";
 
-function Logo({ colorScheme }: { colorScheme: ColorScheme }) {
-  return (
-    <Text size="lg" weight={500}>
-      Sidequest
-    </Text>
-  );
-}
+const links = [
+  {
+    link: "/courses",
+    label: "Courses",
+  },
+  {
+    link: "/blog",
+    label: "Blog",
+  },
+];
+
+const footerData = [
+  {
+    title: "About",
+    links: [
+      {
+        label: "Features",
+        link: "#",
+      },
+      {
+        label: "Pricing",
+        link: "#",
+      },
+      {
+        label: "Support",
+        link: "#",
+      },
+      {
+        label: "Forums",
+        link: "#",
+      },
+    ],
+  },
+  {
+    title: "Project",
+    links: [
+      {
+        label: "Contribute",
+        link: "#",
+      },
+      {
+        label: "Media assets",
+        link: "#",
+      },
+      {
+        label: "Changelog",
+        link: "#",
+      },
+      {
+        label: "Releases",
+        link: "#",
+      },
+    ],
+  },
+  {
+    title: "Community",
+    links: [
+      {
+        label: "Join Discord",
+        link: "#",
+      },
+      {
+        label: "Follow on Twitter",
+        link: "#",
+      },
+      {
+        label: "Email newsletter",
+        link: "#",
+      },
+      {
+        label: "GitHub discussions",
+        link: "#",
+      },
+    ],
+  },
+];
 
 export default function App() {
-  const theme = useMantineTheme();
-  const [opened, setOpened] = useState(false);
-  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
-
   return (
-    <AppShell
-      styles={{
-        main: {
-          background:
-            theme.colorScheme === "dark"
-              ? theme.colors.dark[8]
-              : theme.colors.gray[0],
-        },
-      }}
-      navbarOffsetBreakpoint="md"
-      fixed
-      navbar={
-        <Navbar
-          p="md"
-          hiddenBreakpoint="md"
-          hidden={!opened}
-          width={{ md: 300, lg: 300 }}
-        >
-          <Accordion iconPosition="right">
-            <Accordion.Item
-              label="Flappy Bird"
-              style={{ border: "none" }}
-              styles={{
-                contentInner: { paddingRight: 0 },
-                control: { padding: "8px" },
-              }}
-            >
-              <Accordion iconPosition="right">
-                <Accordion.Item
-                  label="Introduction"
-                  style={{ border: "none" }}
-                  styles={{
-                    control: { padding: "8px" },
-                  }}
-                >
-                  <Accordion.Item
-                    label="Welcome"
-                    iconSize={0}
-                    style={{ border: "none" }}
-                    styles={{
-                      control: { padding: "8px" },
-                      icon: {
-                        margin: 0,
-                      },
-                    }}
-                  />
-                  <Accordion.Item
-                    label="Prerequisites"
-                    iconSize={0}
-                    style={{ border: "none" }}
-                    styles={{
-                      control: { padding: "8px" },
-                      icon: {
-                        margin: 0,
-                      },
-                    }}
-                  />
-                </Accordion.Item>
-              </Accordion>
-
-              <Accordion iconPosition="right">
-                <Accordion.Item
-                  label="Project Setup"
-                  style={{ border: "none" }}
-                  styles={{
-                    control: { padding: "8px" },
-                  }}
-                >
-                  <Accordion.Item
-                    label="Getting Started"
-                    iconSize={0}
-                    style={{ border: "none" }}
-                    styles={{
-                      control: { padding: "8px" },
-                      icon: {
-                        margin: 0,
-                      },
-                    }}
-                  />
-                  <Accordion.Item
-                    label="Setting up the Canvas"
-                    iconSize={0}
-                    style={{ border: "none" }}
-                    styles={{
-                      control: { padding: "8px" },
-                      icon: {
-                        margin: 0,
-                      },
-                    }}
-                  />
-                </Accordion.Item>
-              </Accordion>
-            </Accordion.Item>
-          </Accordion>
-        </Navbar>
-      }
-      footer={
-        <Footer height={60} p="md">
-          &copy; 2022 Sidequest
-        </Footer>
-      }
-      header={
-        <Header height={70} p="md">
-          <div
-            style={{ display: "flex", alignItems: "center", height: "100%" }}
-          >
-            <MediaQuery largerThan="md" styles={{ display: "none" }}>
-              <Burger
-                opened={opened}
-                onClick={() => setOpened((o) => !o)}
-                size="sm"
-                color={theme.colors.gray[6]}
-                mr="xl"
-              />
-            </MediaQuery>
-
-            <Group position="apart" style={{ width: "100%" }}>
-              <Logo colorScheme={colorScheme} />
-              <ActionIcon onClick={() => toggleColorScheme()} size={40}>
-                {colorScheme === "dark" ? (
-                  <Sun size={24} />
-                ) : (
-                  <MoonStars size={24} />
-                )}
-              </ActionIcon>
-            </Group>
-          </div>
-        </Header>
-      }
-    >
-      <Outlet />
-    </AppShell>
+    <>
+      <HeaderResponsive links={links} />
+      <Hero />
+      <Features
+        title="Integrate effortlessly with any technology stack"
+        description="Every once in a while, you’ll see a Golbat that’s missing some fangs. This happens when hunger drives it to try biting a Steel-type Pokémon."
+      />
+      <Footer data={footerData} />
+    </>
   );
 }
