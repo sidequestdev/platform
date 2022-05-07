@@ -1,166 +1,121 @@
-import type { ColorScheme } from "@mantine/core";
 import {
-  Accordion,
-  ActionIcon,
-  AppShell,
-  Burger,
-  Footer,
-  Group,
-  Header,
-  MediaQuery,
-  Navbar,
+  Container,
+  createStyles,
+  SimpleGrid,
   Text,
-  useMantineColorScheme,
+  ThemeIcon,
+  Title,
   useMantineTheme,
 } from "@mantine/core";
-import React, { useState } from "react";
-import { MoonStars, Sun } from "tabler-icons-react";
+import React from "react";
+import type { Icon as TablerIcon } from "tabler-icons-react";
+import { DeviceGamepad } from "tabler-icons-react";
 
-function Logo({ colorScheme }: { colorScheme: ColorScheme }) {
+const MOCKDATA = [
+  {
+    icon: DeviceGamepad,
+    title: "Flappy Bird",
+    description:
+      "We'll recreate the classis Flappy Bird game, with a focus on the physics and gameplay.",
+  },
+];
+
+interface CourseProps {
+  icon: TablerIcon;
+  title: React.ReactNode;
+  description: React.ReactNode;
+}
+
+export function Course({ icon: Icon, title, description }: CourseProps) {
+  const theme = useMantineTheme();
+
   return (
-    <Text size="lg" weight={500}>
-      Sidequest
-    </Text>
+    <div>
+      <ThemeIcon variant="light" size={40} radius={40}>
+        <Icon style={{ width: 20, height: 20 }} />
+      </ThemeIcon>
+      <Text style={{ marginTop: theme.spacing.sm, marginBottom: 7 }}>
+        {title}
+      </Text>
+      <Text size="sm" color="dimmed" style={{ lineHeight: 1.6 }}>
+        {description}
+      </Text>
+    </div>
   );
 }
 
-export default function Courses() {
+const useStyles = createStyles((theme) => ({
+  containerWrapper: {
+    position: "relative",
+    boxSizing: "border-box",
+  },
+
+  wrapper: {
+    paddingTop: theme.spacing.xl * 4,
+    paddingBottom: theme.spacing.xl * 4,
+  },
+
+  title: {
+    fontFamily: `Greycliff CF, ${theme.fontFamily}`,
+    fontWeight: 900,
+    marginBottom: theme.spacing.md,
+    textAlign: "center",
+
+    [theme.fn.smallerThan("sm")]: {
+      fontSize: 28,
+      textAlign: "left",
+    },
+  },
+
+  description: {
+    textAlign: "center",
+
+    [theme.fn.smallerThan("sm")]: {
+      textAlign: "left",
+    },
+  },
+}));
+
+interface CoursesComponentProps {
+  title: React.ReactNode;
+  description: React.ReactNode;
+  data?: CourseProps[];
+}
+
+export function Courses({
+  title,
+  description,
+  data = MOCKDATA,
+}: CoursesComponentProps) {
+  const { classes } = useStyles();
   const theme = useMantineTheme();
-  const [opened, setOpened] = useState(false);
-  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const courses = data.map((course, index) => (
+    <Course {...course} key={index} />
+  ));
 
   return (
-    <AppShell
-      styles={{
-        main: {
-          background:
-            theme.colorScheme === "dark"
-              ? theme.colors.dark[8]
-              : theme.colors.gray[0],
-        },
-      }}
-      navbarOffsetBreakpoint="md"
-      fixed
-      navbar={
-        <Navbar
-          p="md"
-          hiddenBreakpoint="md"
-          hidden={!opened}
-          width={{ md: 300, lg: 300 }}
+    <div className={classes.containerWrapper}>
+      <Container className={classes.wrapper}>
+        <Title className={classes.title}>{title}</Title>
+
+        <Container size={560} p={0}>
+          <Text size="sm" className={classes.description}>
+            {description}
+          </Text>
+        </Container>
+
+        <SimpleGrid
+          mt={60}
+          cols={3}
+          spacing={theme.spacing.xl * 2}
+          breakpoints={[
+            { maxWidth: 980, cols: 2, spacing: "xl" },
+            { maxWidth: 755, cols: 1, spacing: "xl" },
+          ]}
         >
-          <Accordion iconPosition="right">
-            <Accordion.Item
-              label="Flappy Bird"
-              style={{ border: "none" }}
-              styles={{
-                contentInner: { paddingRight: 0 },
-                control: { padding: "8px" },
-              }}
-            >
-              <Accordion iconPosition="right">
-                <Accordion.Item
-                  label="Introduction"
-                  style={{ border: "none" }}
-                  styles={{
-                    control: { padding: "8px" },
-                  }}
-                >
-                  <Accordion.Item
-                    label="Welcome"
-                    iconSize={0}
-                    style={{ border: "none" }}
-                    styles={{
-                      control: { padding: "8px" },
-                      icon: {
-                        margin: 0,
-                      },
-                    }}
-                  />
-                  <Accordion.Item
-                    label="Prerequisites"
-                    iconSize={0}
-                    style={{ border: "none" }}
-                    styles={{
-                      control: { padding: "8px" },
-                      icon: {
-                        margin: 0,
-                      },
-                    }}
-                  />
-                </Accordion.Item>
-              </Accordion>
-
-              <Accordion iconPosition="right">
-                <Accordion.Item
-                  label="Project Setup"
-                  style={{ border: "none" }}
-                  styles={{
-                    control: { padding: "8px" },
-                  }}
-                >
-                  <Accordion.Item
-                    label="Getting Started"
-                    iconSize={0}
-                    style={{ border: "none" }}
-                    styles={{
-                      control: { padding: "8px" },
-                      icon: {
-                        margin: 0,
-                      },
-                    }}
-                  />
-                  <Accordion.Item
-                    label="Setting up the Canvas"
-                    iconSize={0}
-                    style={{ border: "none" }}
-                    styles={{
-                      control: { padding: "8px" },
-                      icon: {
-                        margin: 0,
-                      },
-                    }}
-                  />
-                </Accordion.Item>
-              </Accordion>
-            </Accordion.Item>
-          </Accordion>
-        </Navbar>
-      }
-      footer={
-        <Footer height={60} p="md">
-          &copy; 2022 Sidequest
-        </Footer>
-      }
-      header={
-        <Header height={70} p="md">
-          <div
-            style={{ display: "flex", alignItems: "center", height: "100%" }}
-          >
-            <MediaQuery largerThan="md" styles={{ display: "none" }}>
-              <Burger
-                opened={opened}
-                onClick={() => setOpened((o) => !o)}
-                size="sm"
-                color={theme.colors.gray[6]}
-                mr="xl"
-              />
-            </MediaQuery>
-
-            <Group position="apart" style={{ width: "100%" }}>
-              <Logo colorScheme={colorScheme} />
-              <ActionIcon onClick={() => toggleColorScheme()} size={40}>
-                {colorScheme === "dark" ? (
-                  <Sun size={24} />
-                ) : (
-                  <MoonStars size={24} />
-                )}
-              </ActionIcon>
-            </Group>
-          </div>
-        </Header>
-      }
-    >
-      <p>ELHO</p>
-    </AppShell>
+          {courses}
+        </SimpleGrid>
+      </Container>
+    </div>
   );
 }

@@ -15,7 +15,9 @@ const useStyles = createStyles((theme) => ({
     position: "relative",
     boxSizing: "border-box",
     backgroundColor:
-      theme.colorScheme === "dark" ? theme.colors.dark[8] : theme.white,
+      theme.colorScheme === "dark"
+        ? theme.colors.dark[8]
+        : theme.colors.gray[2],
   },
 
   inner: {

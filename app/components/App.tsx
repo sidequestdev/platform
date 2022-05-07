@@ -1,4 +1,7 @@
+import { Container, Grid, SimpleGrid } from "@mantine/core";
 import React from "react";
+import { Course } from "./Course";
+import { Courses } from "./Courses";
 import { Features } from "./Features";
 import { Footer } from "./Footer";
 import { HeaderResponsive } from "./Header";
@@ -81,6 +84,23 @@ const footerData = [
   },
 ];
 
+const MOCK_COURSE = {
+  image: "https://i.ibb.co/3YzkGw3/flappy-bird.png",
+  title: "Flappy Bird",
+  description:
+    "Recreate the classic Flappy Bird game, with a focus on the physics and gameplay.",
+  stats: [
+    {
+      title: "Reading Time",
+      value: "3h",
+    },
+    {
+      title: "Difficulty",
+      value: "Beginner",
+    },
+  ],
+};
+
 export default function App() {
   return (
     <>
@@ -90,6 +110,30 @@ export default function App() {
         title="Integrate effortlessly with any technology stack"
         description="Every once in a while, you’ll see a Golbat that’s missing some fangs. This happens when hunger drives it to try biting a Steel-type Pokémon."
       />
+      <Courses title="Courses" description="Choose your path" />
+
+      <Container size={950}>
+        <Grid grow>
+          <Grid.Col sm={12} md={4}>
+            <Container size={350}>
+              <Course {...MOCK_COURSE} />
+            </Container>
+          </Grid.Col>
+
+          <Grid.Col sm={12} md={4}>
+            <Container size={350}>
+              <Course {...MOCK_COURSE} />
+            </Container>
+          </Grid.Col>
+
+          <Grid.Col sm={12} md={4}>
+            <Container size={350}>
+              <Course {...MOCK_COURSE} />
+            </Container>
+          </Grid.Col>
+        </Grid>
+      </Container>
+
       <Footer data={footerData} />
     </>
   );
