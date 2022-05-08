@@ -1,7 +1,7 @@
 import {
   Container,
   createStyles,
-  SimpleGrid,
+  Grid,
   Text,
   ThemeIcon,
   Title,
@@ -10,6 +10,7 @@ import {
 import React from "react";
 import type { Icon as TablerIcon } from "tabler-icons-react";
 import { DeviceGamepad } from "tabler-icons-react";
+import { Course } from "./Course";
 
 const MOCKDATA = [
   {
@@ -20,13 +21,64 @@ const MOCKDATA = [
   },
 ];
 
+const MOCK_COURSES = [
+  {
+    image: "https://i.ibb.co/3YzkGw3/flappy-bird.png",
+    title: "Flappy Bird",
+    description:
+      "Recreate the classic Flappy Bird game, with a focus on the physics and gameplay.",
+    stats: [
+      {
+        title: "Reading Time",
+        value: "3h",
+      },
+      {
+        title: "Difficulty",
+        value: "Beginner",
+      },
+    ],
+  },
+  {
+    image: "https://i.ibb.co/j4nNPXn/space-eaters.png",
+    title: "Space Eaters",
+    description:
+      "Create a top down shooter with enemy patterns, scene manangement, ECS and more.",
+    stats: [
+      {
+        title: "Reading Time",
+        value: "5h",
+      },
+      {
+        title: "Difficulty",
+        value: "Intermediate",
+      },
+    ],
+  },
+  {
+    image: "https://i.ibb.co/7JrNRXC/game-of-life.png",
+    title: "Game of Life",
+    description:
+      "Conway's Game of Life is a classic cellular automaton. We'll recreate the simulation entirely in the canvas.",
+    stats: [
+      {
+        title: "Reading Time",
+        value: "2h",
+      },
+      {
+        title: "Difficulty",
+        value: "Beginner",
+      },
+    ],
+  },
+];
+
 interface CourseProps {
   icon: TablerIcon;
   title: React.ReactNode;
   description: React.ReactNode;
 }
 
-export function Course({ icon: Icon, title, description }: CourseProps) {
+export function CourseOld({ icon: Icon, title, description }: CourseProps) {
   const theme = useMantineTheme();
 
   return (
@@ -61,7 +113,7 @@ const useStyles = createStyles((theme) => ({
     marginBottom: theme.spacing.md,
     textAlign: "center",
 
-    [theme.fn.smallerThan("sm")]: {
+    [theme.fn.smallerThan("xs")]: {
       fontSize: 28,
       textAlign: "left",
     },
@@ -70,7 +122,7 @@ const useStyles = createStyles((theme) => ({
   description: {
     textAlign: "center",
 
-    [theme.fn.smallerThan("sm")]: {
+    [theme.fn.smallerThan("xs")]: {
       textAlign: "left",
     },
   },
@@ -89,8 +141,12 @@ export function Courses({
 }: CoursesComponentProps) {
   const { classes } = useStyles();
   const theme = useMantineTheme();
-  const courses = data.map((course, index) => (
-    <Course {...course} key={index} />
+  const courses = MOCK_COURSES.map((course, index) => (
+    <Grid.Col sm={12} md={4} key={index}>
+      <Container size={350}>
+        <Course {...course} />
+      </Container>
+    </Grid.Col>
   ));
 
   return (
@@ -104,17 +160,9 @@ export function Courses({
           </Text>
         </Container>
 
-        <SimpleGrid
-          mt={60}
-          cols={3}
-          spacing={theme.spacing.xl * 2}
-          breakpoints={[
-            { maxWidth: 980, cols: 2, spacing: "xl" },
-            { maxWidth: 755, cols: 1, spacing: "xl" },
-          ]}
-        >
-          {courses}
-        </SimpleGrid>
+        <Container size={950} mt={60}>
+          <Grid grow>{courses}</Grid>
+        </Container>
       </Container>
     </div>
   );

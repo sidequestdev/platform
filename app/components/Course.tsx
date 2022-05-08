@@ -1,12 +1,5 @@
+import { Card, createStyles, Group, Image, Text } from "@mantine/core";
 import React from "react";
-import {
-  createStyles,
-  Card,
-  Image,
-  Text,
-  Group,
-  RingProgress,
-} from "@mantine/core";
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -63,12 +56,6 @@ export function Course({ image, title, description, stats }: CourseProps) {
         <Text size="sm" weight={700} className={classes.title}>
           {title}
         </Text>
-        <Group spacing={5}>
-          <Text size="xs" color="dimmed">
-            80% completed
-          </Text>
-          <RingProgress size={18} sections={[{ value: 80, color: "blue" }]} />
-        </Group>
       </Group>
       <Text mt="sm" mb="md" color="dimmed" size="xs">
         {description}
