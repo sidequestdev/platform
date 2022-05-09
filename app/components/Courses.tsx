@@ -11,6 +11,9 @@ import React from "react";
 import type { Icon as TablerIcon } from "tabler-icons-react";
 import { DeviceGamepad } from "tabler-icons-react";
 import { Course } from "./Course";
+import flappyBirdCover from "../images/flappy-bird.png";
+import spaceEatersCover from "../images/space-eaters.png";
+import gameOfLifeCover from "../images/game-of-life.png";
 
 const MOCKDATA = [
   {
@@ -23,7 +26,7 @@ const MOCKDATA = [
 
 const MOCK_COURSES = [
   {
-    image: "https://i.ibb.co/3YzkGw3/flappy-bird.png",
+    image: flappyBirdCover,
     title: "Flappy Bird",
     description:
       "Recreate the classic Flappy Bird game, with a focus on the physics and gameplay.",
@@ -39,7 +42,7 @@ const MOCK_COURSES = [
     ],
   },
   {
-    image: "https://i.ibb.co/j4nNPXn/space-eaters.png",
+    image: spaceEatersCover,
     title: "Space Eaters",
     description:
       "Create a top down shooter with enemy patterns, scene manangement, ECS and more.",
@@ -55,7 +58,7 @@ const MOCK_COURSES = [
     ],
   },
   {
-    image: "https://i.ibb.co/7JrNRXC/game-of-life.png",
+    image: gameOfLifeCover,
     title: "Game of Life",
     description:
       "Conway's Game of Life is a classic cellular automaton. We'll recreate the simulation entirely in the canvas.",
