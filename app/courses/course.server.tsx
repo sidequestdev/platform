@@ -6,6 +6,14 @@ import path from "path";
 import invariant from "tiny-invariant";
 import remarkToc from "~/lib/remark-plugins/remark-toc";
 
+process.env.ESBUILD_BINARY_PATH = path.join(
+  process.cwd(),
+  "node_modules",
+  "esbuild",
+  "bin",
+  "esbuild"
+);
+
 export type Post = {
   slug: string;
   title: string;
