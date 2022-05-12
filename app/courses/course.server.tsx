@@ -1,6 +1,5 @@
 import parseFrontMatter from "front-matter";
 import fs from "fs/promises";
-import { readdirSync } from "fs";
 import { marked } from "marked";
 import { bundleMDX } from "mdx-bundler";
 import path from "path";
@@ -28,8 +27,6 @@ export type PostMarkdownAttributes = {
 
 // relative to the server output, not the source!
 const coursesPath = path.join(__dirname, "..", "courses");
-
-console.log(readdirSync(coursesPath));
 
 function isValidPostAttributes(
   attributes: any
@@ -88,8 +85,10 @@ export async function getMdxPage(slug: string) {
     ]);
 
   const filepath = path.join(coursesPath, `${slug}.mdx`);
+  const file = await fs.readFile(filepath, "utf8");
 
   console.log({
+    file,
     coursesPath,
     filepath,
   });
