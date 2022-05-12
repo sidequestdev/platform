@@ -11,13 +11,23 @@ import invariant from "tiny-invariant";
 import { getMdxPage } from "~/courses/course.server";
 
 export const loader: LoaderFunction = async ({ params }) => {
-  console.log(params);
+  try {
+    console.log(params);
 
-  invariant(params["*"], "expected params.*");
+    invariant(params.courseId, "expected params.courseId");
+    invariant(params["*"], "expected params.*");
 
-  const slug = params["*"];
+    const courseId = params.courseId;
+    const slug = `${courseId}/${params["*"]}`;
 
-  return getMdxPage(slug);
+    const page = await getMdxPage(slug);
+
+    return page;
+  } catch (error) {
+    throw new Response("Not Found", {
+      status: 404,
+    });
+  }
 };
 
 const Code = (

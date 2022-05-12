@@ -7,6 +7,7 @@ import {
   Title,
 } from "@mantine/core";
 import React from "react";
+import Tilt from "react-parallax-tilt";
 import flappyBirdCover from "../images/flappy-bird.png";
 import gameOfLifeCover from "../images/game-of-life.png";
 import spaceEatersCover from "../images/space-eaters.png";
@@ -124,11 +125,13 @@ export function Courses({
 
   const courses = MOCK_COURSES.map((course, index) => (
     <Grid.Col sm={12} md={4} key={index}>
-      <Container size={350}>
-        <Anchor href={course.link} style={{ textDecoration: "none" }}>
-          <CourseCard {...course} />
-        </Anchor>
-      </Container>
+      <Tilt>
+        <Container size={350}>
+          <Anchor href={course.link} style={{ textDecoration: "none" }}>
+            <CourseCard {...course} />
+          </Anchor>
+        </Container>
+      </Tilt>
     </Grid.Col>
   ));
 
