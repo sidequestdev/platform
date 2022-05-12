@@ -101,14 +101,14 @@ export async function getMdxPage(slug: string) {
     mdxOptions(options) {
       options.remarkPlugins = [
         ...(options.remarkPlugins ?? []),
-        [remarkToc, { exportRef: toc }],
+        // [remarkToc, { exportRef: toc }],
       ];
 
       options.rehypePlugins = [
         ...(options.rehypePlugins ?? []),
-        rehypeSlug,
-        rehypeAutoLinkHeadings,
-        rehypeCodeTitles,
+        // rehypeSlug,
+        // rehypeAutoLinkHeadings,
+        // rehypeCodeTitles,
       ];
 
       return options;
