@@ -98,6 +98,7 @@ export async function getMdxPage(slug: string) {
 
   const mdx = await bundleMDX({
     file: filepath,
+    cwd: coursesPath,
     mdxOptions(options) {
       options.remarkPlugins = [
         ...(options.remarkPlugins ?? []),
