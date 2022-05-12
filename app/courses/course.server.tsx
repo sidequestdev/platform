@@ -90,6 +90,7 @@ export async function getMdxPage(slug: string) {
   const filepath = path.join(coursesPath, `${slug}.mdx`);
 
   console.log({
+    coursesPath,
     filepath,
   });
 
@@ -97,7 +98,6 @@ export async function getMdxPage(slug: string) {
 
   const mdx = await bundleMDX({
     file: filepath,
-    cwd: coursesPath,
     mdxOptions(options) {
       options.remarkPlugins = [
         ...(options.remarkPlugins ?? []),
