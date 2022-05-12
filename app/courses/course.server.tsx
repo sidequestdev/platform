@@ -4,6 +4,7 @@ import { marked } from "marked";
 import { bundleMDX } from "mdx-bundler";
 import path from "path";
 import invariant from "tiny-invariant";
+import remarkToc from "~/lib/remark-plugins/remark-toc";
 
 export type Post = {
   slug: string;
@@ -67,47 +68,43 @@ export async function getPost(slug: string) {
   return { slug, html, title: attributes.title };
 }
 
-export async function getMdxPost(slug: string) {
-  const [
-    rehypePrism,
-    rehypeCodeTitles,
-    rehypeSlug,
-    rehypeAutoLinkHeadings,
-    rehypeToc,
-  ] = await Promise.all([
-    import("rehype-prism-plus").then((mod) => mod.default),
-    import("rehype-code-titles").then((mod) => mod.default),
-    import("rehype-slug").then((mod) => mod.default),
-    import("rehype-autolink-headings").then((mod) => mod.default),
-    import("rehype-toc").then((mod) => mod.default),
-  ]);
+export async function getMdxPage(slug: string) {
+  const [rehypeCodeTitles, rehypeSlug, rehypeAutoLinkHeadings] =
+    await Promise.all([
+      import("rehype-code-titles").then((mod) => mod.default),
+      import("rehype-slug").then((mod) => mod.default),
+      import("rehype-autolink-headings").then((mod) => mod.default),
+    ]);
 
   const filepath = path.join(coursesPath, `${slug}.mdx`);
 
-  const { code, frontmatter } = await bundleMDX({
+  const toc: Array<{ value: string; url: string; depth: number }> = [];
+
+  const mdx = await bundleMDX({
     file: filepath,
     cwd: coursesPath,
     mdxOptions(options) {
+      options.remarkPlugins = [
+        ...(options.remarkPlugins ?? []),
+        [remarkToc, { exportRef: toc }],
+      ];
+
       options.rehypePlugins = [
         ...(options.rehypePlugins ?? []),
         rehypeSlug,
         rehypeAutoLinkHeadings,
-        rehypeToc,
-        // This must come before rehype-prism-plus
         rehypeCodeTitles,
-        rehypePrism,
       ];
 
       return options;
     },
   });
 
-  // invariant(
-  //   isValidPostAttributes(attributes),
-  //   `Post ${filepath} is missing attributes`,
-  // );
+  console.log(toc);
 
-  // const html = marked(body);
+  console.log(mdx);
+
+  const { code, frontmatter } = mdx;
 
   return { slug, html: code, code, title: frontmatter.title };
 }

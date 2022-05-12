@@ -1,33 +1,23 @@
 import {
+  Anchor,
   Container,
   createStyles,
   Grid,
   Text,
-  ThemeIcon,
   Title,
-  useMantineTheme,
 } from "@mantine/core";
 import React from "react";
-import type { Icon as TablerIcon } from "tabler-icons-react";
-import { DeviceGamepad } from "tabler-icons-react";
-import { Course } from "./Course";
 import flappyBirdCover from "../images/flappy-bird.png";
-import spaceEatersCover from "../images/space-eaters.png";
 import gameOfLifeCover from "../images/game-of-life.png";
-
-const MOCKDATA = [
-  {
-    icon: DeviceGamepad,
-    title: "Flappy Bird",
-    description:
-      "We'll recreate the classis Flappy Bird game, with a focus on the physics and gameplay.",
-  },
-];
+import spaceEatersCover from "../images/space-eaters.png";
+import { CourseCard } from "./CourseCard";
 
 const MOCK_COURSES = [
   {
     image: flappyBirdCover,
     title: "Flappy Bird",
+    premium: true,
+    link: "/courses/flappy-bird/welcome",
     description:
       "Recreate the classic Flappy Bird game, with a focus on the physics and gameplay.",
     stats: [
@@ -44,6 +34,8 @@ const MOCK_COURSES = [
   {
     image: spaceEatersCover,
     title: "Space Eaters",
+    premium: true,
+    link: "/courses/space-eaters",
     description:
       "Create a top down shooter with enemy patterns, scene manangement, ECS and more.",
     stats: [
@@ -60,6 +52,7 @@ const MOCK_COURSES = [
   {
     image: gameOfLifeCover,
     title: "Game of Life",
+    link: "/courses/game-of-life",
     description:
       "Conway's Game of Life is a classic cellular automaton. We'll recreate the simulation entirely in the canvas.",
     stats: [
@@ -76,27 +69,12 @@ const MOCK_COURSES = [
 ];
 
 interface CourseProps {
-  icon: TablerIcon;
-  title: React.ReactNode;
-  description: React.ReactNode;
-}
-
-export function CourseOld({ icon: Icon, title, description }: CourseProps) {
-  const theme = useMantineTheme();
-
-  return (
-    <div>
-      <ThemeIcon variant="light" size={40} radius={40}>
-        <Icon style={{ width: 20, height: 20 }} />
-      </ThemeIcon>
-      <Text style={{ marginTop: theme.spacing.sm, marginBottom: 7 }}>
-        {title}
-      </Text>
-      <Text size="sm" color="dimmed" style={{ lineHeight: 1.6 }}>
-        {description}
-      </Text>
-    </div>
-  );
+  image: string;
+  title: string;
+  premium?: boolean;
+  description: string;
+  link: string;
+  stats: Array<{ title: string; value: string }>;
 }
 
 const useStyles = createStyles((theme) => ({
@@ -132,22 +110,24 @@ const useStyles = createStyles((theme) => ({
 }));
 
 interface CoursesComponentProps {
-  title: React.ReactNode;
-  description: React.ReactNode;
   data?: CourseProps[];
+  description: React.ReactNode;
+  title: React.ReactNode;
 }
 
 export function Courses({
   title,
   description,
-  data = MOCKDATA,
+  data = MOCK_COURSES,
 }: CoursesComponentProps) {
   const { classes } = useStyles();
-  const theme = useMantineTheme();
+
   const courses = MOCK_COURSES.map((course, index) => (
     <Grid.Col sm={12} md={4} key={index}>
       <Container size={350}>
-        <Course {...course} />
+        <Anchor href={course.link} style={{ textDecoration: "none" }}>
+          <CourseCard {...course} />
+        </Anchor>
       </Container>
     </Grid.Col>
   ));
@@ -155,7 +135,9 @@ export function Courses({
   return (
     <div className={classes.containerWrapper}>
       <Container className={classes.wrapper}>
-        <Title className={classes.title}>{title}</Title>
+        <Title className={classes.title} id="courses">
+          {title}
+        </Title>
 
         <Container size={560} p={0}>
           <Text size="sm" className={classes.description}>

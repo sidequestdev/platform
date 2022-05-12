@@ -1,5 +1,13 @@
-import { Card, createStyles, Group, Image, Text } from "@mantine/core";
+import {
+  Card,
+  createStyles,
+  Group,
+  Image,
+  Text,
+  useMantineTheme,
+} from "@mantine/core";
 import React from "react";
+import { FreeRights, PremiumRights } from "tabler-icons-react";
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -22,9 +30,10 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-interface CourseProps {
+interface CourseCardProps {
   image: string;
   title: string;
+  premium?: boolean;
   description: string;
   stats: {
     title: string;
@@ -32,7 +41,14 @@ interface CourseProps {
   }[];
 }
 
-export function Course({ image, title, description, stats }: CourseProps) {
+export function CourseCard({
+  image,
+  title,
+  premium,
+  description,
+  stats,
+}: CourseCardProps) {
+  const theme = useMantineTheme();
   const { classes } = useStyles();
 
   const items = stats.map((stat) => (
@@ -56,7 +72,17 @@ export function Course({ image, title, description, stats }: CourseProps) {
         <Text size="sm" weight={700} className={classes.title}>
           {title}
         </Text>
+
+        <Group spacing={5}>
+          {premium ? (
+            <PremiumRights color={theme.colors.green[5]} />
+          ) : (
+            // Spacer hack
+            <FreeRights color={theme.colors.green[1]} visibility="hidden" />
+          )}
+        </Group>
       </Group>
+
       <Text mt="sm" mb="md" color="dimmed" size="xs">
         {description}
       </Text>

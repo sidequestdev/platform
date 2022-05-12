@@ -119,14 +119,16 @@ export function Hero() {
         </Text>
 
         <Group className={classes.controls}>
-          <Button
-            size="xl"
-            className={classes.control}
-            variant="gradient"
-            gradient={{ from: "blue", to: "cyan" }}
-          >
-            Get started
-          </Button>
+          <a href="#courses">
+            <Button
+              size="xl"
+              className={classes.control}
+              variant="gradient"
+              gradient={{ from: "blue", to: "cyan" }}
+            >
+              Get started
+            </Button>
+          </a>
         </Group>
       </Container>
     </div>

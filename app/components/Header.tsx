@@ -15,104 +15,108 @@ import { Logo } from "./Logo";
 
 const HEADER_HEIGHT = 56;
 
-const useStyles = createStyles((theme) => ({
-  header: {
-    position: "relative",
-    zIndex: 1,
-    paddingLeft: theme.spacing.md,
-    paddingRight: theme.spacing.md,
-  },
-
-  inner: {
-    height: HEADER_HEIGHT,
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    maxWidth: "1440px",
-    margin: "auto",
-  },
-
-  links: {
-    [theme.fn.smallerThan("md")]: {
-      display: "none",
-    },
-  },
-
-  search: {
-    [theme.fn.smallerThan("xs")]: {
-      display: "none",
-    },
-  },
-
-  dropdown: {
-    position: "absolute",
-    top: HEADER_HEIGHT,
-    left: 0,
-    right: 0,
-    zIndex: 0,
-    borderTopRightRadius: 0,
-    borderTopLeftRadius: 0,
-    borderTopWidth: 0,
-    overflow: "hidden",
-
-    [theme.fn.largerThan("md")]: {
-      display: "none",
-    },
-  },
-
-  burger: {
-    [theme.fn.largerThan("md")]: {
-      display: "none",
-    },
-  },
-
-  link: {
-    display: "block",
-    lineHeight: 1,
-    padding: "8px 12px",
-    borderRadius: theme.radius.sm,
-    textDecoration: "none",
-    color:
-      theme.colorScheme === "dark"
-        ? theme.colors.dark[0]
-        : theme.colors.gray[7],
-    fontSize: theme.fontSizes.md,
-    fontWeight: 500,
-
-    "&:hover": {
-      backgroundColor:
-        theme.colorScheme === "dark"
-          ? theme.colors.dark[6]
-          : theme.colors.gray[0],
+const useStyles = ({ fluid }: { fluid?: boolean } = {}) =>
+  createStyles((theme) => ({
+    header: {
+      position: "relative",
+      zIndex: 1,
+      paddingLeft: theme.spacing.md,
+      paddingRight: theme.spacing.md,
     },
 
-    [theme.fn.smallerThan("md")]: {
-      borderRadius: 0,
-      padding: theme.spacing.md,
+    inner: {
+      height: HEADER_HEIGHT,
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      ...(fluid ? {} : { maxWidth: "1440px" }),
+      margin: "auto",
     },
-  },
 
-  linkActive: {
-    "&, &:hover": {
-      backgroundColor:
-        theme.colorScheme === "dark"
-          ? theme.fn.rgba(theme.colors[theme.primaryColor][9], 0.25)
-          : theme.colors[theme.primaryColor][0],
+    links: {
+      [theme.fn.smallerThan("md")]: {
+        display: "none",
+      },
+    },
+
+    search: {
+      [theme.fn.smallerThan("xs")]: {
+        display: "none",
+      },
+    },
+
+    dropdown: {
+      position: "absolute",
+      top: HEADER_HEIGHT,
+      left: 0,
+      right: 0,
+      zIndex: 0,
+      borderTopRightRadius: 0,
+      borderTopLeftRadius: 0,
+      borderTopWidth: 0,
+      overflow: "hidden",
+
+      [theme.fn.largerThan("md")]: {
+        display: "none",
+      },
+    },
+
+    burger: {
+      [theme.fn.largerThan("md")]: {
+        display: "none",
+      },
+    },
+
+    link: {
+      display: "block",
+      lineHeight: 1,
+      padding: "8px 12px",
+      borderRadius: theme.radius.sm,
+      textDecoration: "none",
       color:
-        theme.colors[theme.primaryColor][theme.colorScheme === "dark" ? 3 : 7],
+        theme.colorScheme === "dark"
+          ? theme.colors.dark[0]
+          : theme.colors.gray[7],
+      fontSize: theme.fontSizes.md,
+      fontWeight: 500,
+
+      "&:hover": {
+        backgroundColor:
+          theme.colorScheme === "dark"
+            ? theme.colors.dark[6]
+            : theme.colors.gray[0],
+      },
+
+      [theme.fn.smallerThan("md")]: {
+        borderRadius: 0,
+        padding: theme.spacing.md,
+      },
     },
-  },
-}));
+
+    linkActive: {
+      "&, &:hover": {
+        backgroundColor:
+          theme.colorScheme === "dark"
+            ? theme.fn.rgba(theme.colors[theme.primaryColor][9], 0.25)
+            : theme.colors[theme.primaryColor][0],
+        color:
+          theme.colors[theme.primaryColor][
+            theme.colorScheme === "dark" ? 3 : 7
+          ],
+      },
+    },
+  }));
 
 interface HeaderResponsiveProps {
+  fluid?: boolean;
   links: { link: string; label: string }[];
 }
 
-export function HeaderResponsive({ links }: HeaderResponsiveProps) {
+export function HeaderResponsive({ fluid, links }: HeaderResponsiveProps) {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const [opened, toggleOpened] = useBooleanToggle(false);
-  const [active, setActive] = useState(links[0].link);
-  const { classes, cx } = useStyles();
+  const [active, setActive] = useState("");
+  const { classes } = useStyles({ fluid })();
 
   const items = links.map((link) => (
     <a
