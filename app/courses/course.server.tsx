@@ -1,5 +1,6 @@
 import parseFrontMatter from "front-matter";
 import fs from "fs/promises";
+import { readdirSync } from "fs";
 import { marked } from "marked";
 import { bundleMDX } from "mdx-bundler";
 import path from "path";
@@ -27,6 +28,8 @@ export type PostMarkdownAttributes = {
 
 // relative to the server output, not the source!
 const coursesPath = path.join(__dirname, "..", "courses");
+
+console.log(readdirSync(coursesPath));
 
 function isValidPostAttributes(
   attributes: any
