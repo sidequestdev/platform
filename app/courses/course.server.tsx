@@ -89,6 +89,10 @@ export async function getMdxPage(slug: string) {
 
   const filepath = path.join(coursesPath, `${slug}.mdx`);
 
+  console.log({
+    filepath,
+  });
+
   const toc: Array<{ value: string; url: string; depth: number }> = [];
 
   const mdx = await bundleMDX({
