@@ -40,6 +40,7 @@
     "@remix-run/serve": "^1.4.3",
     "@remix-run/server-runtime": "^1.4.3",
     "bcryptjs": "^2.4.3",
+    "esbuild": "^0.14.39",
     "front-matter": "^4.0.2",
     "github-slugger": "^1.4.0",
     "marked": "^4.0.15",
