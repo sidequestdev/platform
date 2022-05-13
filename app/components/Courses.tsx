@@ -7,7 +7,6 @@ import {
   Title,
 } from "@mantine/core";
 import React from "react";
-import Tilt from "react-parallax-tilt";
 import flappyBirdCover from "../images/flappy-bird.png";
 import gameOfLifeCover from "../images/game-of-life.png";
 import spaceEatersCover from "../images/space-eaters.png";
@@ -108,6 +107,15 @@ const useStyles = createStyles((theme) => ({
       textAlign: "left",
     },
   },
+
+  courseCard: {
+    transition: "transform 150ms ease, box-shadow 100ms ease",
+
+    "&:hover": {
+      boxShadow: theme.shadows.md,
+      transform: "scale(1.02)",
+    },
+  },
 }));
 
 interface CoursesComponentProps {
@@ -125,13 +133,11 @@ export function Courses({
 
   const courses = MOCK_COURSES.map((course, index) => (
     <Grid.Col sm={12} md={4} key={index}>
-      <Tilt>
-        <Container size={350}>
-          <Anchor href={course.link} style={{ textDecoration: "none" }}>
-            <CourseCard {...course} />
-          </Anchor>
-        </Container>
-      </Tilt>
+      <Container size={350} className={classes.courseCard}>
+        <Anchor href={course.link} style={{ textDecoration: "none" }}>
+          <CourseCard {...course} />
+        </Anchor>
+      </Container>
     </Grid.Col>
   ));
 

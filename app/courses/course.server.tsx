@@ -4,6 +4,7 @@ import { marked } from "marked";
 import { bundleMDX } from "mdx-bundler";
 import path from "path";
 import invariant from "tiny-invariant";
+import type { RemarkTableOfContentsItem } from "~/lib/remark-plugins/remark-toc";
 import remarkToc from "~/lib/remark-plugins/remark-toc";
 
 process.env.ESBUILD_BINARY_PATH = path.join(
@@ -77,6 +78,8 @@ export async function getPost(slug: string) {
 }
 
 export async function getMdxPage(slug: string) {
+  console.log({ slug });
+
   const [rehypeCodeTitles, rehypeSlug, rehypeAutoLinkHeadings] =
     await Promise.all([
       import("rehype-code-titles").then((mod) => mod.default),
@@ -85,15 +88,8 @@ export async function getMdxPage(slug: string) {
     ]);
 
   const filepath = path.join(coursesPath, `${slug}.mdx`);
-  const file = await fs.readFile(filepath, "utf8");
 
-  console.log({
-    file,
-    coursesPath,
-    filepath,
-  });
-
-  const toc: Array<{ value: string; url: string; depth: number }> = [];
+  const toc: Array<RemarkTableOfContentsItem> = [];
 
   const mdx = await bundleMDX({
     file: filepath,
@@ -115,11 +111,11 @@ export async function getMdxPage(slug: string) {
     },
   });
 
-  console.log(toc);
+  // console.log({ toc });
 
-  console.log(mdx);
+  // console.log(mdx);
 
   const { code, frontmatter } = mdx;
 
-  return { slug, html: code, code, title: frontmatter.title };
+  return { slug, html: code, code, title: frontmatter.title, toc };
 }

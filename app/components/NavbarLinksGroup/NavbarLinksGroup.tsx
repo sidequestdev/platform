@@ -1,13 +1,13 @@
-import React, { useState } from "react";
 import {
-  Group,
   Box,
   Collapse,
-  ThemeIcon,
-  Text,
-  UnstyledButton,
   createStyles,
+  Group,
+  Text,
+  ThemeIcon,
+  UnstyledButton,
 } from "@mantine/core";
+import React, { useState } from "react";
 import type { Icon as TablerIcon } from "tabler-icons-react";
 import { CalendarStats, ChevronLeft, ChevronRight } from "tabler-icons-react";
 
