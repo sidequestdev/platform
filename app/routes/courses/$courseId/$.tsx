@@ -30,7 +30,7 @@ import { MoonStars, Sun } from "tabler-icons-react";
 import invariant from "tiny-invariant";
 import { Logo } from "~/components/Logo";
 import { LinksGroup } from "~/components/NavbarLinksGroup/NavbarLinksGroup";
-import { TableOfContents, TOC_MOCK_DATA } from "~/components/TableOfContents";
+import { TableOfContents } from "~/components/TableOfContents";
 import { UserButton } from "~/components/UserButton/UserButton";
 import { getMdxPage } from "~/courses/course.server";
 import { mockFlappyBird } from "~/mocks/courses";
@@ -58,6 +58,19 @@ export const loader: LoaderFunction = async ({ params }) => {
 };
 
 const useStyles = createStyles((theme) => ({
+  appShell: {
+    // Add some offset spacing to account for the navbar
+    "h1,h2,h3,h4,h5,h6": {
+      "&::before": {
+        content: '""',
+        display: "block",
+        height: "75px",
+        marginTop: "-75px",
+        visibility: "hidden",
+      },
+    },
+  },
+
   navbar: {
     backgroundColor:
       theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.white,
@@ -164,6 +177,7 @@ export function CourseShell({ page }: CourseShellProps) {
 
   return (
     <AppShell
+      className={classes.appShell}
       styles={{
         main: {
           background:

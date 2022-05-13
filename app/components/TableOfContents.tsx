@@ -109,8 +109,7 @@ export function TableOfContents({ links }: TableOfContentsProps) {
     <Box<"a">
       component="a"
       href={item.link}
-      onClick={(event) => {
-        event.preventDefault();
+      onClick={() => {
         setActive(index);
       }}
       key={item.label}
