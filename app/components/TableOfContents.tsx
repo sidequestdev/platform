@@ -103,7 +103,7 @@ interface TableOfContentsProps {
 
 export function TableOfContents({ links }: TableOfContentsProps) {
   const { classes, cx } = useStyles();
-  const [active, setActive] = useState(2);
+  const [active, setActive] = useState(0);
 
   const items = links.map((item, index) => (
     <Box<"a">
