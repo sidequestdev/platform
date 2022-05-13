@@ -99,9 +99,6 @@ export async function getMdxPage(slug: string) {
     file: filepath,
     cwd: coursesPath,
     mdxOptions(options) {
-      options.mdExtensions = [".md"];
-      options.mdxExtensions = [".mdx"];
-
       options.remarkPlugins = [
         ...(options.remarkPlugins ?? []),
         [remarkToc, { exportRef: toc }],

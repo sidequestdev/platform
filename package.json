@@ -43,6 +43,7 @@
     "esbuild": "^0.14.39",
     "front-matter": "^4.0.2",
     "github-slugger": "^1.4.0",
+    "hast-util-to-string": "^2.0.0",
     "marked": "^4.0.15",
     "mdx-bundler": "^9.0.0",
     "react": "^17.0.2",
@@ -54,7 +55,8 @@
     "rehype-toc": "^3.0.2",
     "tabler-icons-react": "^1.48.0",
     "theme-change": "^2.0.2",
-    "tiny-invariant": "^1.2.0"
+    "tiny-invariant": "^1.2.0",
+    "unist-util-visit": "^4.1.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^6.3.1",
