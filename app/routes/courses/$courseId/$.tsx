@@ -26,14 +26,13 @@ import { useLoaderData } from "@remix-run/react";
 import type { ComponentMap } from "mdx-bundler/client";
 import { getMDXComponent } from "mdx-bundler/client";
 import React, { useState } from "react";
-import { MoonStars, Sun } from "tabler-icons-react";
+import { File, Folder, MoonStars, Sun } from "tabler-icons-react";
 import invariant from "tiny-invariant";
 import { Logo } from "~/components/Logo";
 import { LinksGroup } from "~/components/NavbarLinksGroup/NavbarLinksGroup";
 import { TableOfContents } from "~/components/TableOfContents";
 import { UserButton } from "~/components/UserButton/UserButton";
 import { getMdxPage } from "~/courses/course.server";
-import { mockFlappyBird } from "~/mocks/courses";
 
 export const loader: LoaderFunction = async ({ params }) => {
   try {
@@ -171,8 +170,12 @@ export function CourseShell({ page }: CourseShellProps) {
     [page.code]
   );
 
-  const links = mockFlappyBird.map((item) => (
-    <LinksGroup {...item} key={item.label} />
+  const links = page.tableOfContents.links.map((item) => (
+    <LinksGroup
+      {...item}
+      icon={Array.isArray(item.links) ? Folder : File}
+      key={item.label}
+    />
   ));
 
   return (
@@ -233,7 +236,7 @@ export function CourseShell({ page }: CourseShellProps) {
             }}
           >
             <TableOfContents
-              links={page.toc.map((item) => ({
+              links={page.pageTableOfContents.map((item) => ({
                 label: item.value,
                 link: item.url,
                 order: item.depth,
@@ -284,6 +287,8 @@ export default function Course() {
   const [colorScheme, setColorScheme] = useState<ColorScheme>("dark");
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
+
+  console.log(JSON.stringify(page, null, 2));
 
   return (
     <ColorSchemeProvider

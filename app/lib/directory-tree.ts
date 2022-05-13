@@ -70,7 +70,7 @@ type Directory = {
   [key: string]: any;
 };
 
-type DirectoryEntry = BaseDirectoryEntry &
+export type DirectoryEntry = BaseDirectoryEntry &
   (File | Directory | { type?: never });
 
 const isFile = (
@@ -254,11 +254,11 @@ export async function directoryTree<Options extends DirectoryTreeOptions>(
   return item;
 }
 
-directoryTree("./courses", {
-  attributes: ["size", "extension", "type"],
-}).then((results) =>
-  console.dir(results, {
-    compact: false,
-    depth: Infinity,
-  })
-);
+// directoryTree("./courses", {
+//   attributes: ["size", "extension", "type"],
+// }).then((results) =>
+//   console.dir(results, {
+//     compact: false,
+//     depth: Infinity,
+//   })
+// );

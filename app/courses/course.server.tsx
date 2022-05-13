@@ -4,6 +4,8 @@ import { marked } from "marked";
 import { bundleMDX } from "mdx-bundler";
 import path from "path";
 import invariant from "tiny-invariant";
+import { TableOfContents } from "~/components/TableOfContents";
+import { DirectoryEntry, directoryTree } from "~/lib/directory-tree";
 import type { RemarkTableOfContentsItem } from "~/lib/remark-plugins/remark-toc";
 import remarkToc from "~/lib/remark-plugins/remark-toc";
 
@@ -80,6 +82,18 @@ export async function getPost(slug: string) {
 export async function getMdxPage(slug: string) {
   console.log({ slug });
 
+  const courseId = slug.split("/").shift();
+
+  const courses = await directoryTree(coursesPath, {
+    attributes: ["size", "extension", "type"],
+  });
+
+  invariant(courses?.type === "directory");
+
+  const course = courses?.children.find((course) => course.name === courseId);
+  invariant(course, `Could not find course ${courseId}`);
+  invariant(course.type === "directory");
+
   const [rehypeCodeTitles, rehypeSlug, rehypeAutoLinkHeadings] =
     await Promise.all([
       import("rehype-code-titles").then((mod) => mod.default),
@@ -89,7 +103,7 @@ export async function getMdxPage(slug: string) {
 
   const filepath = path.join(coursesPath, `${slug}.mdx`);
 
-  const toc: Array<RemarkTableOfContentsItem> = [];
+  const pageTableOfContents: Array<RemarkTableOfContentsItem> = [];
 
   const mdx = await bundleMDX({
     file: filepath,
@@ -97,7 +111,7 @@ export async function getMdxPage(slug: string) {
     mdxOptions(options) {
       options.remarkPlugins = [
         ...(options.remarkPlugins ?? []),
-        [remarkToc, { exportRef: toc }],
+        [remarkToc, { exportRef: pageTableOfContents }],
       ];
 
       options.rehypePlugins = [
@@ -111,11 +125,39 @@ export async function getMdxPage(slug: string) {
     },
   });
 
-  // console.log({ toc });
-
-  // console.log(mdx);
-
   const { code, frontmatter } = mdx;
 
-  return { slug, html: code, code, title: frontmatter.title, toc };
+  const walker = (
+    tree: NonNullable<Awaited<ReturnType<typeof directoryTree>>>
+  ) => {
+    if (tree.type === "directory") {
+      // read in metadata.json
+      return {
+        label: tree.name,
+        links: tree.children.map(walker),
+      };
+    } else if (tree.type === "file") {
+      // read in frontmatter
+
+      return {
+        label: tree.name,
+        link: `/courses/${tree.path
+          .replace(`${coursesPath}/`, "")
+          .replace(/\.(md|mdx)$/i, "")}`,
+      };
+    }
+  };
+
+  const tableOfContents = walker(course);
+
+  console.log(JSON.stringify(tableOfContents, null, 2));
+
+  return {
+    slug,
+    html: code,
+    code,
+    title: frontmatter.title,
+    pageTableOfContents,
+    tableOfContents,
+  };
 }
