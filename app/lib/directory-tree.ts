@@ -62,7 +62,7 @@ type DirectoryMetadata = {
   premium?: boolean;
 };
 
-type Directory = {
+export type Directory = {
   type: typeof FileType["DIRECTORY"];
   children: DirectoryEntry[];
   metadata: DirectoryMetadata;

@@ -1,11 +1,10 @@
-import parseFrontMatter from "front-matter";
+import { default as fm, default as parseFrontMatter } from "front-matter";
 import fs from "fs/promises";
 import { marked } from "marked";
 import { bundleMDX } from "mdx-bundler";
 import path from "path";
 import invariant from "tiny-invariant";
-import { TableOfContents } from "~/components/TableOfContents";
-import { DirectoryEntry, directoryTree } from "~/lib/directory-tree";
+import { directoryTree } from "~/lib/directory-tree";
 import type { RemarkTableOfContentsItem } from "~/lib/remark-plugins/remark-toc";
 import remarkToc from "~/lib/remark-plugins/remark-toc";
 
@@ -79,6 +78,18 @@ export async function getPost(slug: string) {
   return { slug, html, title: attributes.title };
 }
 
+type ToCItem = {
+  label: string;
+  link: string;
+  position: number;
+};
+
+type ToCDirectory = {
+  label: string;
+  links: Array<ToCItem | ToCDirectory>;
+  position: number;
+};
+
 export async function getMdxPage(slug: string) {
   console.log({ slug });
 
@@ -105,7 +116,11 @@ export async function getMdxPage(slug: string) {
 
   const pageTableOfContents: Array<RemarkTableOfContentsItem> = [];
 
-  const mdx = await bundleMDX({
+  const mdx = await bundleMDX<{
+    sidebar_position: number;
+    title?: string;
+    description?: string;
+  }>({
     file: filepath,
     cwd: coursesPath,
     mdxOptions(options) {
@@ -127,28 +142,44 @@ export async function getMdxPage(slug: string) {
 
   const { code, frontmatter } = mdx;
 
-  const walker = (
+  const walker = async (
     tree: NonNullable<Awaited<ReturnType<typeof directoryTree>>>
-  ) => {
+  ): Promise<ToCItem | ToCDirectory> => {
     if (tree.type === "directory") {
       // read in metadata.json
+      const metadataFilePath = path.join(tree.path, "metadata.json");
+
+      const metadata: {
+        label: string;
+        position: number;
+      } = JSON.parse(await fs.readFile(metadataFilePath, "utf8"));
+
       return {
-        label: tree.name,
-        links: tree.children.map(walker),
+        label: metadata.label,
+        links: await Promise.all(tree.children.map(walker)),
+        position: metadata.position,
       };
     } else if (tree.type === "file") {
       // read in frontmatter
+      const { attributes } = fm<{
+        sidebar_position: number;
+        title: string;
+        description?: string;
+      }>(await fs.readFile(tree.path, "utf8"));
 
       return {
-        label: tree.name,
+        label: attributes.title,
         link: `/courses/${tree.path
           .replace(`${coursesPath}/`, "")
           .replace(/\.(md|mdx)$/i, "")}`,
+        position: attributes.sidebar_position,
       };
     }
+
+    throw new Error("Invalid tree type");
   };
 
-  const tableOfContents = walker(course);
+  const tableOfContents = await walker(course);
 
   console.log(JSON.stringify(tableOfContents, null, 2));
 

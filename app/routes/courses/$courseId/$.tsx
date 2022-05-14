@@ -18,16 +18,14 @@ import {
   useMantineColorScheme,
   useMantineTheme,
 } from "@mantine/core";
-import type { PrismProps } from "@mantine/prism";
-import { Prism } from "@mantine/prism";
-import type { PrismSharedProps } from "@mantine/prism/lib/types";
 import type { LoaderFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import type { ComponentMap } from "mdx-bundler/client";
 import { getMDXComponent } from "mdx-bundler/client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { File, Folder, MoonStars, Sun } from "tabler-icons-react";
 import invariant from "tiny-invariant";
+import { Code } from "~/components/Code";
 import { Logo } from "~/components/Logo";
 import { LinksGroup } from "~/components/NavbarLinksGroup/NavbarLinksGroup";
 import { TableOfContents } from "~/components/TableOfContents";
@@ -36,8 +34,6 @@ import { getMdxPage } from "~/courses/course.server";
 
 export const loader: LoaderFunction = async ({ params }) => {
   try {
-    console.log(params);
-
     invariant(params.courseId, "expected params.courseId");
     invariant(params["*"], "expected params.*");
 
@@ -108,49 +104,6 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-// TODO: Move to a separate file.
-const Code = (
-  props: React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>
-) => {
-  const { className, children } = props;
-
-  // If there is no className, this in an inline code block.
-  // e.g. `const foo = "bar";`
-  if (className == null) {
-    return <InlineCode>{children}</InlineCode>;
-  }
-
-  invariant(className, "expected className");
-  invariant(typeof children === "string", "expected children");
-
-  const language: PrismSharedProps["language"] | undefined = className
-    ?.split(":")[0]
-    ?.split("-")
-    .pop() as PrismSharedProps["language"];
-
-  invariant(language, "expected language");
-
-  const title = className?.split(":")[1];
-
-  const options: PrismProps = {
-    children,
-    language,
-    withLineNumbers: true,
-  };
-
-  return (
-    <Prism
-      {...options}
-      styles={{
-        code: {
-          border: "1px solid #aaa",
-          fontSize: "14px",
-        },
-      }}
-    />
-  );
-};
-
 const MDXComponents: ComponentMap = {
   code: Code,
 };
@@ -159,21 +112,45 @@ interface CourseShellProps {
   page: Awaited<ReturnType<typeof getMdxPage>>;
 }
 
-export function CourseShell({ page }: CourseShellProps) {
+export function CourseShell({ page: initialPage }: CourseShellProps) {
+  const fetcher = useFetcher();
   const theme = useMantineTheme();
+  const { classes } = useStyles();
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const [opened, setOpened] = useState(false);
-  const { classes } = useStyles();
+  const [page, setPage] = useState(initialPage);
+  const [selectedLink, setSelectedLink] = useState(page.slug);
+
+  useEffect(() => {
+    if (fetcher.type === "done") {
+      setPage(fetcher.data);
+    }
+  }, [fetcher]);
+
+  useEffect(() => {
+    console.log({ slug: page.slug });
+    history.replaceState(null, "", `/courses/${page.slug}`);
+    setSelectedLink(page.slug);
+  }, [page]);
 
   const Component = React.useMemo(
     () => getMDXComponent(page.code),
     [page.code]
   );
 
-  const links = page.tableOfContents.links.map((item) => (
+  const links = page.tableOfContents?.links?.map((item) => (
     <LinksGroup
       {...item}
+      initiallyOpened={
+        Array.isArray(item.links)
+          ? item.links.find((link) => link.link.includes(page.slug)) != null
+          : false
+      }
+      selected={selectedLink}
       icon={Array.isArray(item.links) ? Folder : File}
+      onSelect={(link) => {
+        fetcher.load(link);
+      }}
       key={item.label}
     />
   ));
@@ -287,8 +264,6 @@ export default function Course() {
   const [colorScheme, setColorScheme] = useState<ColorScheme>("dark");
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
-
-  console.log(JSON.stringify(page, null, 2));
 
   return (
     <ColorSchemeProvider
