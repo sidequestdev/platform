@@ -1,6 +1,5 @@
-import { default as fm, default as parseFrontMatter } from "front-matter";
+import { default as fm } from "front-matter";
 import fs from "fs/promises";
-import { marked } from "marked";
 import { bundleMDX } from "mdx-bundler";
 import path from "path";
 import invariant from "tiny-invariant";
@@ -16,66 +15,13 @@ process.env.ESBUILD_BINARY_PATH = path.join(
   "esbuild"
 );
 
-export type Post = {
-  slug: string;
-  title: string;
-  html: string;
-  code?: string;
-};
-
-export type PostMarkdownAttributes = {
-  title: string;
-};
-
 // relative to the server output, not the source!
 const coursesPath = path.join(__dirname, "..", "courses");
-
-function isValidPostAttributes(
-  attributes: any
-): attributes is PostMarkdownAttributes {
-  return attributes?.title;
-}
 
 export async function getCourses() {
   const dir = await fs.readdir(coursesPath);
 
   return dir;
-}
-
-export async function getPosts() {
-  const dir = await fs.readdir(coursesPath);
-
-  return Promise.all(
-    dir.map(async (filename) => {
-      const file = await fs.readFile(path.join(coursesPath, filename), "utf8");
-      const { attributes } = parseFrontMatter(file.toString());
-
-      invariant(
-        isValidPostAttributes(attributes),
-        `${filename} is not a valid post`
-      );
-
-      return {
-        slug: filename.replace(".md", ""),
-        title: attributes.title,
-      };
-    })
-  );
-}
-
-export async function getPost(slug: string) {
-  const filepath = path.join(coursesPath, `${slug}.md`);
-  const file = await fs.readFile(filepath, "utf8");
-  const { attributes, body } = parseFrontMatter(file.toString());
-
-  invariant(
-    isValidPostAttributes(attributes),
-    `Post ${filepath} is missing attributes`
-  );
-
-  const html = marked(body);
-
-  return { slug, html, title: attributes.title };
 }
 
 type ToCItem = {
@@ -91,7 +37,7 @@ type ToCDirectory = {
 };
 
 export async function getMdxPage(slug: string) {
-  console.log({ slug });
+  console.info({ slug });
 
   const courseId = slug.split("/").shift();
 
@@ -156,7 +102,9 @@ export async function getMdxPage(slug: string) {
 
       return {
         label: metadata.label,
-        links: await Promise.all(tree.children.map(walker)),
+        links: await Promise.all(tree.children.map(walker)).then((links) =>
+          links.sort((a, b) => a.position - b.position)
+        ),
         position: metadata.position,
       };
     } else if (tree.type === "file") {
@@ -180,8 +128,6 @@ export async function getMdxPage(slug: string) {
   };
 
   const tableOfContents = await walker(course);
-
-  console.log(JSON.stringify(tableOfContents, null, 2));
 
   return {
     slug,

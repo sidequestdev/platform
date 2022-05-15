@@ -131,7 +131,9 @@ export function LinksGroup({
             setOpened((o) => !o);
           }
 
-          onSelect(link);
+          if (hasLinks === false) {
+            onSelect(link);
+          }
         }}
         className={cx(classes.control, {
           [classes.linkActive]: hasLinks ? false : link === selected,
