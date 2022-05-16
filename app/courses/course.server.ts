@@ -3,10 +3,10 @@ import { bundleMDX } from "mdx-bundler";
 import fs from "node:fs/promises";
 import path from "node:path";
 import invariant from "tiny-invariant";
+import yaml from "yaml";
 import { directoryTree } from "~/lib/directory-tree";
 import type { RemarkTableOfContentsItem } from "~/lib/remark-plugins/remark-toc";
 import remarkToc from "~/lib/remark-plugins/remark-toc";
-import yaml from "yaml";
 
 process.env.ESBUILD_BINARY_PATH = path.join(
   process.cwd(),
@@ -40,8 +40,6 @@ export type ToCDirectory = {
 };
 
 export async function getMdxPage(slug: string) {
-  console.info({ slug });
-
   const courseId = slug.split("/").shift();
 
   const courses = await directoryTree(coursesPath, {

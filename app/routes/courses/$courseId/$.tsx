@@ -129,7 +129,6 @@ export function CourseShell({ page: initialPage }: CourseShellProps) {
   }, [fetcher]);
 
   useEffect(() => {
-    console.log({ slug: page.slug });
     history.replaceState(null, "", `/courses/${page.slug}`);
     setSelectedLink(page.slug);
   }, [page]);
