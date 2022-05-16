@@ -1,7 +1,7 @@
 import { default as fm } from "front-matter";
-import fs from "fs/promises";
 import { bundleMDX } from "mdx-bundler";
-import path from "path";
+import fs from "node:fs/promises";
+import path from "node:path";
 import invariant from "tiny-invariant";
 import { directoryTree } from "~/lib/directory-tree";
 import type { RemarkTableOfContentsItem } from "~/lib/remark-plugins/remark-toc";
@@ -100,6 +100,8 @@ export async function getMdxPage(slug: string) {
       const metadata: {
         label: string;
         position: number;
+        // await fs.readFile(metadataFilePath, "utf8"); is getting
+        // converted to `await import()` which requires json assert
       } = JSON.parse(await fs.readFile(metadataFilePath, "utf8"));
 
       return {
