@@ -6,6 +6,7 @@ import invariant from "tiny-invariant";
 import { directoryTree } from "~/lib/directory-tree";
 import type { RemarkTableOfContentsItem } from "~/lib/remark-plugins/remark-toc";
 import remarkToc from "~/lib/remark-plugins/remark-toc";
+import yaml from "yaml";
 
 process.env.ESBUILD_BINARY_PATH = path.join(
   process.cwd(),
@@ -45,6 +46,7 @@ export async function getMdxPage(slug: string) {
 
   const courses = await directoryTree(coursesPath, {
     attributes: ["size", "extension", "type"],
+    extensions: /\.mdx?$/,
   });
 
   invariant(courses?.type === "directory");
@@ -95,14 +97,14 @@ export async function getMdxPage(slug: string) {
   ): Promise<ToCItem | ToCDirectory> => {
     if (tree.type === "directory") {
       // read in metadata.json
-      const metadataFilePath = path.join(tree.path, "metadata.json");
+      const metadataFilePath = path.join(tree.path, "metadata.yaml");
 
       const metadata: {
         label: string;
         position: number;
         // await fs.readFile(metadataFilePath, "utf8"); is getting
         // converted to `await import()` which requires json assert
-      } = JSON.parse(await fs.readFile(metadataFilePath, "utf8"));
+      } = yaml.parse(await fs.readFile(metadataFilePath, "utf8"));
 
       return {
         label: metadata.label,
