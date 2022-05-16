@@ -30,6 +30,7 @@ import { Logo } from "~/components/Logo";
 import { LinksGroup } from "~/components/NavbarLinksGroup/NavbarLinksGroup";
 import { TableOfContents } from "~/components/TableOfContents";
 import { UserButton } from "~/components/UserButton/UserButton";
+import type { ToCItem } from "~/courses/course.server";
 import { getMdxPage } from "~/courses/course.server";
 
 export const loader: LoaderFunction = async ({ params }) => {
@@ -138,16 +139,24 @@ export function CourseShell({ page: initialPage }: CourseShellProps) {
     [page.code]
   );
 
+  invariant(
+    "links" in page.tableOfContents,
+    "expected links in tableOfContents"
+  );
+
   const links = page.tableOfContents?.links?.map((item) => (
     <LinksGroup
       {...item}
-      initiallyOpened={
-        Array.isArray(item.links)
-          ? item.links.find((link) => link.link.includes(page.slug)) != null
-          : false
-      }
+      {...(item.type === "directory"
+        ? {
+            initiallyOpened:
+              item.links
+                .filter((link): link is ToCItem => link.type === "file")
+                .find((link) => link.link.includes(page.slug)) != null,
+          }
+        : {})}
       selected={selectedLink}
-      icon={Array.isArray(item.links) ? Folder : File}
+      icon={item.type === "directory" ? Folder : File}
       onSelect={(link) => {
         fetcher.load(link);
       }}

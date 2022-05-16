@@ -24,16 +24,18 @@ export async function getCourses() {
   return dir;
 }
 
-type ToCItem = {
+export type ToCItem = {
   label: string;
   link: string;
   position: number;
+  type: "file";
 };
 
-type ToCDirectory = {
+export type ToCDirectory = {
   label: string;
   links: Array<ToCItem | ToCDirectory>;
   position: number;
+  type: "directory";
 };
 
 export async function getMdxPage(slug: string) {
@@ -106,6 +108,7 @@ export async function getMdxPage(slug: string) {
           links.sort((a, b) => a.position - b.position)
         ),
         position: metadata.position,
+        type: "directory",
       };
     } else if (tree.type === "file") {
       // read in frontmatter
@@ -121,6 +124,7 @@ export async function getMdxPage(slug: string) {
           .replace(`${coursesPath}/`, "")
           .replace(/\.(md|mdx)$/i, "")}`,
         position: attributes.sidebar_position,
+        type: "file",
       };
     }
 

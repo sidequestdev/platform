@@ -10,6 +10,7 @@ import {
 import React, { useState } from "react";
 import type { Icon as TablerIcon } from "tabler-icons-react";
 import { ChevronLeft, ChevronRight } from "tabler-icons-react";
+import type { ToCDirectory, ToCItem } from "~/courses/course.server";
 
 const useStyles = createStyles((theme, _params, getRef) => {
   const icon = getRef("icon");
@@ -80,46 +81,50 @@ const useStyles = createStyles((theme, _params, getRef) => {
   };
 });
 
-interface LinksGroupProps {
-  icon: TablerIcon;
-  label: string;
-  selected?: string;
-  link?: string;
-  initiallyOpened?: boolean;
-  onSelect: (link: string) => void;
-  links?: { label: string; link: string }[];
-}
+type LinksGroupProps =
+  | {
+      icon: TablerIcon;
+      label: string;
+      selected: string;
+      onSelect: (link: string) => void;
+    } & (
+      | {
+          type: ToCItem["type"];
+          link: string;
+        }
+      | {
+          type: "directory";
+          initiallyOpened?: boolean;
+          links: Array<ToCItem | ToCDirectory>;
+        }
+    );
 
-export function LinksGroup({
-  icon: Icon,
-  label,
-  link,
-  initiallyOpened,
-  selected,
-  links,
-  onSelect,
-}: LinksGroupProps) {
+export function LinksGroup(options: LinksGroupProps) {
+  const { onSelect, icon: Icon } = options;
   const { classes, theme, cx } = useStyles();
-  const hasLinks = Array.isArray(links);
-  const [opened, setOpened] = useState(initiallyOpened || false);
+  const [opened, setOpened] = useState(
+    (options.type === "directory" && options.initiallyOpened) ?? false
+  );
   const ChevronIcon = theme.dir === "ltr" ? ChevronRight : ChevronLeft;
 
-  const items = (hasLinks ? links : []).map((link) => (
-    <Text<"a">
-      onClick={(event) => {
-        event.preventDefault();
-        onSelect(link.link);
-      }}
-      component="a"
-      className={cx(classes.link, {
-        [classes.linkActive]: link.link.includes(selected),
-      })}
-      href={link.link}
-      key={link.label}
-    >
-      {link.label}
-    </Text>
-  ));
+  const items = (options.type === "directory" ? options.links : [])
+    .filter((link): link is ToCItem => link.type === "file")
+    .map((link) => (
+      <Text<"a">
+        onClick={(event) => {
+          event.preventDefault();
+          onSelect(link.link);
+        }}
+        component="a"
+        className={cx(classes.link, {
+          [classes.linkActive]: link.link.includes(options.selected),
+        })}
+        href={link.link}
+        key={link.label}
+      >
+        {link.label}
+      </Text>
+    ));
 
   return (
     <>
@@ -127,28 +132,31 @@ export function LinksGroup({
         onClick={(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
           event.preventDefault();
 
-          if (hasLinks) {
+          if (options.type === "directory") {
             setOpened((o) => !o);
           }
 
-          if (hasLinks === false) {
-            onSelect(link);
+          if (options.type === "file") {
+            onSelect(options.link);
           }
         }}
         className={cx(classes.control, {
-          [classes.linkActive]: hasLinks ? false : link === selected,
+          [classes.linkActive]:
+            options.type === "directory"
+              ? false
+              : options.link === options.selected,
         })}
         component="a"
-        href={link}
+        href={options.type === "file" ? options.link : undefined}
       >
         <Group position="apart" spacing={0}>
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <ThemeIcon variant="light" size={30}>
               <Icon size={18} />
             </ThemeIcon>
-            <Box ml="md">{label}</Box>
+            <Box ml="md">{options.label}</Box>
           </Box>
-          {hasLinks && (
+          {options.type === "directory" && (
             <ChevronIcon
               className={classes.chevron}
               size={14}
@@ -162,7 +170,9 @@ export function LinksGroup({
         </Group>
       </UnstyledButton>
 
-      {hasLinks ? <Collapse in={opened}>{items}</Collapse> : null}
+      {options.type === "directory" ? (
+        <Collapse in={opened}>{items}</Collapse>
+      ) : null}
     </>
   );
 }
