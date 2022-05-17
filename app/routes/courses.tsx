@@ -129,7 +129,10 @@ export function CourseShell({ page }: CourseShellProps) {
         : {})}
       selected={selectedLink}
       icon={item.type === "directory" ? Folder : File}
-      onSelect={(link) => setSelectedLink(link)}
+      onSelect={(link) => {
+        setSelectedLink(link);
+        setOpened((o) => !o);
+      }}
       key={item.label}
     />
   ));
