@@ -7,6 +7,7 @@ import {
   ThemeIcon,
   UnstyledButton,
 } from "@mantine/core";
+import { Link } from "@remix-run/react";
 import React, { useState } from "react";
 import type { Icon as TablerIcon } from "tabler-icons-react";
 import { ChevronLeft, ChevronRight } from "tabler-icons-react";
@@ -100,7 +101,7 @@ type LinksGroupProps =
     );
 
 export function LinksGroup(options: LinksGroupProps) {
-  const { onSelect, icon: Icon } = options;
+  const { icon: Icon, onSelect } = options;
   const { classes, theme, cx } = useStyles();
   const [opened, setOpened] = useState(
     (options.type === "directory" && options.initiallyOpened) ?? false
@@ -110,17 +111,16 @@ export function LinksGroup(options: LinksGroupProps) {
   const items = (options.type === "directory" ? options.links : [])
     .filter((link): link is ToCItem => link.type === "file")
     .map((link) => (
-      <Text<"a">
-        onClick={(event) => {
-          event.preventDefault();
-          onSelect(link.link);
-        }}
-        component="a"
+      <Text
+        component={Link}
         className={cx(classes.link, {
           [classes.linkActive]: link.link.includes(options.selected),
         })}
-        href={link.link}
+        to={link.link}
         key={link.label}
+        onClick={() => {
+          onSelect(link.link);
+        }}
       >
         {link.label}
       </Text>
@@ -128,51 +128,63 @@ export function LinksGroup(options: LinksGroupProps) {
 
   return (
     <>
-      <UnstyledButton
-        onClick={(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-          event.preventDefault();
-
-          if (options.type === "directory") {
-            setOpened((o) => !o);
-          }
-
-          if (options.type === "file") {
+      {options.type === "file" ? (
+        <UnstyledButton
+          className={cx(classes.control, {
+            [classes.linkActive]: options.link === options.selected,
+          })}
+          component={Link}
+          to={options.type === "file" ? options.link : ""}
+          onClick={() => {
             onSelect(options.link);
-          }
-        }}
-        className={cx(classes.control, {
-          [classes.linkActive]:
-            options.type === "directory"
-              ? false
-              : options.link === options.selected,
-        })}
-        component="a"
-        href={options.type === "file" ? options.link : undefined}
-      >
-        <Group position="apart" spacing={0}>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <ThemeIcon variant="light" size={30}>
-              <Icon size={18} />
-            </ThemeIcon>
-            <Box ml="md">{options.label}</Box>
-          </Box>
-          {options.type === "directory" && (
-            <ChevronIcon
-              className={classes.chevron}
-              size={14}
-              style={{
-                transform: opened
-                  ? `rotate(${theme.dir === "rtl" ? -90 : 90}deg)`
-                  : "none",
-              }}
-            />
-          )}
-        </Group>
-      </UnstyledButton>
+          }}
+        >
+          <Group position="apart" spacing={0}>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <ThemeIcon variant="light" size={30}>
+                <Icon size={18} />
+              </ThemeIcon>
+              <Box ml="md">{options.label}</Box>
+            </Box>
+          </Group>
+        </UnstyledButton>
+      ) : (
+        <>
+          <UnstyledButton
+            onClick={(
+              event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+            ) => {
+              if (options.type === "directory") {
+                setOpened((o) => !o);
+              }
+            }}
+            className={classes.control}
+            component="a"
+          >
+            <Group position="apart" spacing={0}>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <ThemeIcon variant="light" size={30}>
+                  <Icon size={18} />
+                </ThemeIcon>
+                <Box ml="md">{options.label}</Box>
+              </Box>
+              {options.type === "directory" && (
+                <ChevronIcon
+                  className={classes.chevron}
+                  size={14}
+                  style={{
+                    transform: opened
+                      ? `rotate(${theme.dir === "rtl" ? -90 : 90}deg)`
+                      : "none",
+                  }}
+                />
+              )}
+            </Group>
+          </UnstyledButton>
 
-      {options.type === "directory" ? (
-        <Collapse in={opened}>{items}</Collapse>
-      ) : null}
+          <Collapse in={opened}>{items}</Collapse>
+        </>
+      )}
     </>
   );
 }

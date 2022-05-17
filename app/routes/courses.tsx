@@ -2,7 +2,6 @@ import type { ColorScheme } from "@mantine/core";
 import {
   ActionIcon,
   AppShell,
-  Aside,
   Burger,
   Code as InlineCode,
   ColorSchemeProvider,
@@ -19,29 +18,25 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import type { LoaderFunction } from "@remix-run/node";
-import { useFetcher, useLoaderData } from "@remix-run/react";
-import type { ComponentMap } from "mdx-bundler/client";
-import { getMDXComponent } from "mdx-bundler/client";
-import React, { useEffect, useState } from "react";
+import { Outlet, useLoaderData } from "@remix-run/react";
+import React, { useState } from "react";
 import { File, Folder, MoonStars, Sun } from "tabler-icons-react";
 import invariant from "tiny-invariant";
-import { Code } from "~/components/Code";
 import { Logo } from "~/components/Logo";
 import { LinksGroup } from "~/components/NavbarLinksGroup/NavbarLinksGroup";
-import { TableOfContents } from "~/components/TableOfContents";
 import { UserButton } from "~/components/UserButton/UserButton";
 import type { ToCItem } from "~/courses/course.server";
 import { getMdxPage } from "~/courses/course.server";
 
 export const loader: LoaderFunction = async ({ params }) => {
   try {
-    invariant(params.courseId, "expected params.courseId");
+    // invariant(params.courseId, "expected params.courseId");
     invariant(params["*"], "expected params.*");
 
-    const courseId = params.courseId;
-    const slug = `${courseId}/${params["*"]}`;
+    // const courseId = params.courseId;
+    // const slug = `${courseId}/${params["*"]}`;
 
-    const page = await getMdxPage(slug);
+    const page = await getMdxPage(params["*"]);
 
     return page;
   } catch (error) {
@@ -105,38 +100,17 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-const MDXComponents: ComponentMap = {
-  code: Code,
-};
-
 interface CourseShellProps {
   page: Awaited<ReturnType<typeof getMdxPage>>;
 }
 
-export function CourseShell({ page: initialPage }: CourseShellProps) {
-  const fetcher = useFetcher();
+export function CourseShell({ page }: CourseShellProps) {
+  console.log("CourseShell");
   const theme = useMantineTheme();
   const { classes } = useStyles();
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const [opened, setOpened] = useState(false);
-  const [page, setPage] = useState(initialPage);
   const [selectedLink, setSelectedLink] = useState(page.slug);
-
-  useEffect(() => {
-    if (fetcher.type === "done") {
-      setPage(fetcher.data);
-    }
-  }, [fetcher]);
-
-  useEffect(() => {
-    history.replaceState(null, "", `/courses/${page.slug}`);
-    setSelectedLink(page.slug);
-  }, [page]);
-
-  const Component = React.useMemo(
-    () => getMDXComponent(page.code),
-    [page.code]
-  );
 
   invariant(
     "links" in page.tableOfContents,
@@ -151,14 +125,12 @@ export function CourseShell({ page: initialPage }: CourseShellProps) {
             initiallyOpened:
               item.links
                 .filter((link): link is ToCItem => link.type === "file")
-                .find((link) => link.link.includes(page.slug)) != null,
+                .find((link) => link.link.includes(selectedLink)) != null,
           }
         : {})}
       selected={selectedLink}
       icon={item.type === "directory" ? Folder : File}
-      onSelect={(link) => {
-        fetcher.load(link);
-      }}
+      onSelect={(link) => setSelectedLink(link)}
       key={item.label}
     />
   ));
@@ -207,29 +179,6 @@ export function CourseShell({ page: initialPage }: CourseShellProps) {
           </Navbar.Section>
         </Navbar>
       }
-      aside={
-        <MediaQuery smallerThan="lg" styles={{ display: "none" }}>
-          <Aside
-            p="md"
-            hiddenBreakpoint="md"
-            width={{ md: 300 }}
-            styles={{
-              root: {
-                background: "transparent",
-                borderLeft: "none",
-              },
-            }}
-          >
-            <TableOfContents
-              links={page.pageTableOfContents.map((item) => ({
-                label: item.value,
-                link: item.url,
-                order: item.depth,
-              }))}
-            />
-          </Aside>
-        </MediaQuery>
-      }
       header={
         <Header height={70} p="md">
           <div
@@ -261,13 +210,13 @@ export function CourseShell({ page: initialPage }: CourseShellProps) {
       }
     >
       <Container>
-        <Component components={MDXComponents} />
+        <Outlet />
       </Container>
     </AppShell>
   );
 }
 
-export default function Course() {
+export default function Courses() {
   const page = useLoaderData<Awaited<ReturnType<typeof getMdxPage>>>();
   const [colorScheme, setColorScheme] = useState<ColorScheme>("dark");
   const toggleColorScheme = (value?: ColorScheme) =>
