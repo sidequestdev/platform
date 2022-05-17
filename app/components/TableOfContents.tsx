@@ -1,53 +1,10 @@
-import React, { useState } from "react";
-import { createStyles, Box, Text, Group } from "@mantine/core";
+import { Box, createStyles, Group, Text } from "@mantine/core";
+import React, { useEffect, useState } from "react";
 import { ListSearch } from "tabler-icons-react";
 
 const LINK_HEIGHT = 38;
 const INDICATOR_SIZE = 10;
 const INDICATOR_OFFSET = (LINK_HEIGHT - INDICATOR_SIZE) / 2;
-
-export const TOC_MOCK_DATA = [
-  {
-    label: "Usage",
-    link: "#usage",
-    order: 1,
-  },
-  {
-    label: "Position and placement",
-    link: "#position",
-    order: 1,
-  },
-  {
-    label: "With other overlays",
-    link: "#overlays",
-    order: 1,
-  },
-  {
-    label: "Manage focus",
-    link: "#focus",
-    order: 1,
-  },
-  {
-    label: "Examples",
-    link: "#1",
-    order: 1,
-  },
-  {
-    label: "Show on focus",
-    link: "#2",
-    order: 2,
-  },
-  {
-    label: "Show on hover",
-    link: "#3",
-    order: 2,
-  },
-  {
-    label: "With form",
-    link: "#4",
-    order: 2,
-  },
-];
 
 const useStyles = createStyles((theme) => ({
   link: {
@@ -99,11 +56,16 @@ const useStyles = createStyles((theme) => ({
 
 interface TableOfContentsProps {
   links: { label: string; link: string; order: number }[];
+  slug: string;
 }
 
-export function TableOfContents({ links }: TableOfContentsProps) {
+export function TableOfContents({ links, slug }: TableOfContentsProps) {
   const { classes, cx } = useStyles();
   const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    setActive(0);
+  }, [slug]);
 
   const items = links.map((item, index) => (
     <Box<"a">

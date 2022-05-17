@@ -105,7 +105,6 @@ interface CourseShellProps {
 }
 
 export function CourseShell({ page }: CourseShellProps) {
-  console.log("CourseShell");
   const theme = useMantineTheme();
   const { classes } = useStyles();
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
