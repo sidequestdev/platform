@@ -1,15 +1,12 @@
-import type { ColorScheme } from "@mantine/core";
 import {
   ActionIcon,
   AppShell,
   Burger,
   Code as InlineCode,
-  ColorSchemeProvider,
   Container,
   createStyles,
   Group,
   Header,
-  MantineProvider,
   MediaQuery,
   Navbar,
   ScrollArea,
@@ -220,22 +217,6 @@ export function CourseShell({ page }: CourseShellProps) {
 
 export default function Courses() {
   const page = useLoaderData<Awaited<ReturnType<typeof getMdxPage>>>();
-  const [colorScheme, setColorScheme] = useState<ColorScheme>("dark");
-  const toggleColorScheme = (value?: ColorScheme) =>
-    setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
 
-  return (
-    <ColorSchemeProvider
-      colorScheme={colorScheme}
-      toggleColorScheme={toggleColorScheme}
-    >
-      <MantineProvider
-        theme={{ colorScheme }}
-        withGlobalStyles
-        withNormalizeCSS
-      >
-        <CourseShell page={page} />
-      </MantineProvider>
-    </ColorSchemeProvider>
-  );
+  return <CourseShell page={page} />;
 }

@@ -1,0 +1,89 @@
+---
+sidebar_position: 2
+title: Setting Up the Canvas
+---
+
+# Setting up the Canvas
+
+## Obtain the Canvas Context2d
+
+Before we can draw anything, we need to get the canvas setup. Query for the canvas element, then obtain the 2d rendering context.
+
+Add the following to `main.ts`:
+
+```typescript title="src/main.ts"
+const canvas = document.querySelector("canvas");
+if (canvas == null) {
+  throw new Error("Could not find canvas element");
+}
+```
+
+Next, the `getContext()` method is used to obtain the 2d rendering context.
+
+```typescript {6-10} title="src/main.ts"
+const canvas = document.querySelector("canvas");
+if (canvas == null) {
+  throw new Error("Could not find canvas element");
+}
+
+const context = canvas.getContext("2d");
+if (context == null) {
+  throw new Error("Could not obtain 2d context");
+}
+```
+
+Great, but what _is_ the `2d` context?
+
+The canvas element provides the surface we draw to, but it does not provide the API we need to make that happen. This is the job of the [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D) object, which we can obtain by calling the [getContext](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext) method on the canvas element. There are other contexts as well, such as `webgl` for 3d.
+
+:::info Error Handling
+
+You'll notice the use of `if (context == null)` checks in our code. We're intentionally avoiding the null-assertion opterator (`!`) in favour of clearer assertions to get type safey.
+
+:::
+
+## Width and Height
+
+Currently the canvas is set to it's default resolution (typically 300x150), let's change that. We’re going to target a resolution of `352 x 576` pixels. Before we update the canvas, let’s create a new file: `src/config.ts`, to track some of our configuration over time. This will help avoid some magic numbers in our code.
+
+```typescript title="src/config.ts"
+export const config = {
+  /**
+   * In pixels
+   */
+  gameWidth: 352,
+
+  /**
+   * In pixels
+   */
+  gameHeight: 576,
+};
+
+export type Config = typeof config;
+```
+
+We'll use `config` to set the size of the canvas element.
+
+```typescript {1,3-4} title="src/main.ts"
+import { config } from "#/config";
+
+canvas.width = config.gameWidth;
+canvas.height = config.gameHeight;
+
+const context = canvas.getContext("2d");
+```
+
+## Image Smoothing
+
+After we obtain the 2d context, we’re going to disable [image smoothing](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/imageSmoothingEnabled) as well. We're after a pixel art look, so we don't want any sort of smoothing to apply. This _should_ only apply when scaling images up, but we'll disable it to be explicit.
+
+```typescript {6} title="src/main.ts"
+const context = canvas.getContext("2d");
+if (context == null) {
+  throw new Error("Could not obtain 2d context");
+}
+
+context.imageSmoothingEnabled = false;
+```
+
+At this point the canvas is in a good state to draw to in the next chapter.

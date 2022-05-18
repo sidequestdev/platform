@@ -1,9 +1,6 @@
-import type {
-  LinksFunction,
-  LoaderFunction,
-  MetaFunction,
-} from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { ColorScheme } from "@mantine/core";
+import { ColorSchemeProvider, MantineProvider } from "@mantine/core";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -12,9 +9,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import { useEffect } from "react";
-import { themeChange } from "theme-change";
-import { getUser } from "./session.server";
+import { useState } from "react";
 
 export const links: LinksFunction = () => {
   return [];
@@ -26,29 +21,39 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
 });
 
-type LoaderData = {
-  user: Awaited<ReturnType<typeof getUser>>;
-};
-
-export const loader: LoaderFunction = async ({ request }) => {
-  return json<LoaderData>({
-    user: await getUser(request),
-  });
-};
-
-export default function App() {
-  useEffect(() => {
-    themeChange(false);
-  }, []);
+function MantineTheme({ children }: { children: React.ReactNode }) {
+  const [colorScheme, setColorScheme] = useState<ColorScheme>("dark");
+  const toggleColorScheme = (value?: ColorScheme) =>
+    setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
 
   return (
-    <html lang="en" data-theme="light" className="h-full">
+    <ColorSchemeProvider
+      colorScheme={colorScheme}
+      toggleColorScheme={toggleColorScheme}
+    >
+      <MantineProvider
+        theme={{ colorScheme }}
+        withNormalizeCSS
+        withGlobalStyles
+      >
+        {children}
+      </MantineProvider>
+    </ColorSchemeProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <html lang="en">
       <head>
         <Meta />
         <Links />
       </head>
-      <body className="h-full">
-        <Outlet />
+      <body>
+        <MantineTheme>
+          <Outlet />
+        </MantineTheme>
+
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

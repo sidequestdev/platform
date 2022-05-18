@@ -3,10 +3,13 @@ import {
   Container,
   createStyles,
   Group,
+  Image,
   Text,
   useMantineTheme,
 } from "@mantine/core";
 import React from "react";
+import lightLogo from "../images/LogoBlack.png";
+import darkLogo from "../images/LogoWhite.png";
 
 const BREAKPOINT = "@media (max-width: 755px)";
 
@@ -22,7 +25,7 @@ const useStyles = createStyles((theme) => ({
 
   inner: {
     position: "relative",
-    paddingTop: 200,
+    paddingTop: 100,
     paddingBottom: 120,
 
     [BREAKPOINT]: {
@@ -94,12 +97,18 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export function Hero() {
-  const { classes, cx } = useStyles();
+  const { classes } = useStyles();
   const theme = useMantineTheme();
 
   return (
     <div className={classes.wrapper}>
       <Container size={700} className={classes.inner}>
+        <Image
+          src={theme.colorScheme === "dark" ? darkLogo : lightLogo}
+          alt="Sidequest logo"
+          mb={64}
+        />
+
         <h1 className={classes.title}>
           Begin your{" "}
           <Text

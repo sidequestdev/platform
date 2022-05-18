@@ -28,6 +28,7 @@ module.exports = {
     "rehype-code-titles",
     "rehype-slug",
     "rehype-toc",
+    "remark-directive",
     "remark-frontmatter",
     "remark-mdx",
     "remark-parse",

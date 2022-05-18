@@ -2,9 +2,11 @@ import { default as fm } from "front-matter";
 import { bundleMDX } from "mdx-bundler";
 import fs from "node:fs/promises";
 import path from "node:path";
+import remarkDirective from "remark-directive";
 import invariant from "tiny-invariant";
 import yaml from "yaml";
 import { directoryTree } from "~/lib/directory-tree";
+import { remarkAlert } from "~/lib/remark-plugins/remark-alert";
 import type { RemarkTableOfContentsItem } from "~/lib/remark-plugins/remark-toc";
 import remarkToc from "~/lib/remark-plugins/remark-toc";
 
@@ -74,6 +76,8 @@ export async function getMdxPage(slug: string) {
     mdxOptions(options) {
       options.remarkPlugins = [
         ...(options.remarkPlugins ?? []),
+        remarkDirective,
+        remarkAlert,
         [remarkToc, { exportRef: pageTableOfContents }],
       ];
 
