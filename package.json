@@ -55,6 +55,7 @@
     "rehype-slug": "^5.0.1",
     "rehype-toc": "^3.0.2",
     "remark-directive": "^2.0.1",
+    "remark-mdx-images": "^1.0.3",
     "tabler-icons-react": "^1.48.0",
     "theme-change": "^2.0.2",
     "tiny-invariant": "^1.2.0",

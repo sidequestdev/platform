@@ -1,12 +1,10 @@
-import { Alert, Aside, Grid, MediaQuery } from "@mantine/core";
+import { Aside, Grid, MediaQuery } from "@mantine/core";
 import type { LoaderFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import type { ComponentMap } from "mdx-bundler/client";
 import { getMDXComponent } from "mdx-bundler/client";
 import React from "react";
-import { AlertCircle } from "tabler-icons-react";
 import invariant from "tiny-invariant";
-import { Code } from "~/components/Code";
+import { MDXComponents } from "~/components/MDXComponents";
 import { TableOfContents } from "~/components/TableOfContents";
 import { getMdxPage } from "~/courses/course.server";
 
@@ -14,6 +12,8 @@ export const loader: LoaderFunction = async ({ params }) => {
   try {
     // invariant(params.courseId, "expected params.courseId");
     invariant(params["*"], "expected params.*");
+
+    console.log({ coursesRoute: params["*"] });
 
     // const courseId = params.courseId;
     // const slug = `${courseId}/${params["*"]}`;
@@ -30,38 +30,6 @@ export const loader: LoaderFunction = async ({ params }) => {
   }
 };
 
-declare module "react" {
-  interface HTMLAttributes<T> extends AriaAttributes, DOMAttributes<T> {
-    // extends React's HTMLAttributes
-    type?: string;
-  }
-}
-
-const MDXComponents: ComponentMap = {
-  code: Code,
-  // TODO - clean this shit up
-  div: (
-    props: React.DetailedHTMLProps<
-      React.HTMLAttributes<HTMLDivElement>,
-      HTMLDivElement
-    >
-  ) => {
-    if (props.type === "info") {
-      return (
-        <Alert
-          icon={<AlertCircle size={24} />}
-          title={props.title}
-          color="cyan"
-        >
-          {props.children}
-        </Alert>
-      );
-    }
-
-    return <div {...props} />;
-  },
-};
-
 export default function Course() {
   const page = useLoaderData<Awaited<ReturnType<typeof getMdxPage>>>();
 
@@ -70,6 +38,15 @@ export default function Course() {
     [page.code]
   );
 
+  // Ignore H1 headers
+  const tableOfContents = page.pageTableOfContents
+    .filter((item) => item.depth !== 1)
+    .map((item) => ({
+      label: item.value,
+      link: item.url,
+      order: item.depth,
+    }));
+
   return (
     <Grid>
       <Grid.Col md={12} lg={11}>
@@ -77,9 +54,9 @@ export default function Course() {
       </Grid.Col>
 
       <MediaQuery smallerThan="lg" styles={{ display: "none" }}>
-        <Grid.Col lg={1}>
+        <Grid.Col md={1}>
           <Aside
-            p="md"
+            p="lg"
             hiddenBreakpoint="md"
             width={{ md: 300 }}
             styles={{
@@ -89,14 +66,9 @@ export default function Course() {
               },
             }}
           >
-            <TableOfContents
-              slug={page.slug}
-              links={page.pageTableOfContents.map((item) => ({
-                label: item.value,
-                link: item.url,
-                order: item.depth,
-              }))}
-            />
+            {tableOfContents.length > 0 ? (
+              <TableOfContents slug={page.slug} links={tableOfContents} />
+            ) : null}
           </Aside>
         </Grid.Col>
       </MediaQuery>

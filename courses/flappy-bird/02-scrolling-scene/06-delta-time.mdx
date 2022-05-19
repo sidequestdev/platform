@@ -1,0 +1,106 @@
+---
+sidebar_position: 6
+title: Delta Time
+---
+
+# Delta Time
+
+## What is Delta Time?
+
+Delta time is literally the _change_ (delta) in time between two events. In this case the change in time between executions of the `frame()` function. But why do we need this?
+
+If you recall our grounds `scrollSpeed` value, it's a relatively low number of `2`, and represented the velocity in pixels per frame. We're counting on the fact that our game only ever runs at a fixed frame rate, say 60fps, to deliver a consistent experience to all our players. This will not always be the case. Monitors running at 120hz (and higher) aren't uncommon. That would mean our game would play (at least) twice as fast! Now players are experiencing the game differently depending on their hardware. Not good.
+
+Another issue is dropped frames. What if our game was more intense and lower end PCs couldn't execute our `frame()` function within ~16ms? What if frames are dropped due to the number of applications clawing for resources on our machines?
+
+Last, but not least, thinking of our velocity in terms of pixels per frame isn't the most intuitive mental model, especially now that we know frame rates _could_ vary. Instead it would be nice to think of velocity in terms of pixels per second, or pixels per unit of time.
+
+We're going to change the `scrollSpeed` to `120`, but in terms of pixels per second. We'll need to calculate the delta time between each frame to handle this.
+
+## Accounting for Delta Time
+
+Let's talk about how we're going to calculate and use delta time. Something we haven't mentioned is that the `callback` function in `requestAnimationFrame()` is passed a single argument of type [DOMHighResTimeStamp](https://developer.mozilla.org/en-US/docs/Web/API/DOMHighResTimeStamp), which we'll abbreviate to `hrt`. `hrt` is a millisecond value that is constantly increasing from the start of the documents lifetime ([time origin](https://developer.mozilla.org/en-US/docs/Web/API/DOMHighResTimeStamp#The_time_origin)). So each time our callback is called we can expect `hrt` to have increased. If we store the last (previous frame) `hrt` since our callback was called, and use the current (current frame) `hrt`, we can determine the delta time in milliseconds within a given frame: `const dt = hrt - last`. Now remember we wanted to think of velocity in terms of seconds, not milliseconds, so lastly we need to normalize this delta time into seconds: `const dt = (hrt - last) / 1000`;
+
+:::info Accounting For Inactive Tabs
+
+When the user clicks off the tab the browser will stop executing our `frame()` function. When they return, the browser will start executing our `frame()` function again. This means that `hrt` could be quite far ahead of `last`, and the delta time we calculate could be really large. This would cause a massive _jump_ in our game.
+
+We'll account for this by always clamping the delta time to maximum of 1 second (1000 milliseconds):
+
+```typescript
+const dt = Math.min(1000, hrt - last) / 1000;
+```
+
+:::
+
+You might be wondering, what should we set `last` to for the first time? After all, we need a single frame from the past to calculate the current frames delta time. We can leverage [performance.now()](https://developer.mozilla.org/en-US/docs/Web/API/Performance/now) to set the initial value outside of our `frame` function. It also returns a DOMHighResTimeStamp, so we'll just use it to capture the current point in time in the documents lifetime before the first call to `requestAnimationFrame()`.
+
+Once we have calculated the delta time, it's pretty easy to leverage it. We'll apply delta time to the values in our game that cause change between frames, in this case the `scrollSpeed`.
+
+Update the `scrollSpeed` back in `main.ts`:
+
+```typescript {5} title="src/main.ts"
+const ground = new Ground({
+  position: new Vector2d(0, config.gameHeight - spriteMap.ground.height),
+  frame: spriteMap.ground,
+  spriteSheet,
+  scrollSpeed: 120,
+});
+```
+
+Then modify the `update()` method of the `Ground` class:
+
+```typescript {4-5} title="src/entities/ground.ts"
+export class Ground {
+  // ...
+
+  public update(delta: number) {
+    this.scrollPositionX -= this.scrollSpeed * delta;
+
+    // Once the whole image is offscreen, reset the x position to 0 to
+    // create the loop effect.
+    if (this.scrollPositionX <= -this.frame.width) {
+      this.scrollPositionX = 0;
+    }
+  }
+
+  // ...
+}
+```
+
+That's it for the `Ground` class.
+
+Next, we need to calculate delta time in the game loop and pass it along:
+
+```typescript {1,3-4,8,25} title="src/main.ts"
+let last = performance.now();
+
+const frame = (hrt: DOMHighResTimeStamp) => {
+  const dt = Math.min(1000, hrt - last) / 1000;
+
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  ground.update(dt);
+
+  // Draw the background
+  context.drawImage(
+    spriteSheet,
+    spriteMap.background.sourceX,
+    spriteMap.background.sourceY,
+    spriteMap.background.width,
+    spriteMap.background.height,
+    0,
+    0,
+    spriteMap.background.width,
+    spriteMap.background.height
+  );
+
+  ground.draw(context);
+
+  last = hrt;
+
+  requestAnimationFrame(frame);
+};
+```
+
+There you have it! We've now accounted for delta time in our `Ground` class and our game loop.

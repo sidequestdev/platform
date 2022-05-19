@@ -1,0 +1,201 @@
+---
+sidebar_position: 5
+title: Scrolling the Ground
+---
+
+# Scrolling the Ground
+
+In this section we're going to create a seamlessly looping ground using a single image and two draw calls.
+
+## How the Scroll Works
+
+To create the scrolling ground effect, we're going to sample the same image twice at different positions.
+
+![Scrolling the ground diagram](./img/scrolling-ground-dark.png)
+
+<br />
+<br />
+
+We're going to track a scrolling position along the x-axis: `scrollPositionX`. It will constantly be moving to the left by whatever our `scrollSpeed` is. The difference between this position and 0 will give us a value to leverage for sampling and drawing two portions of the same image. Once `scrollPositionX` reaches a position less (cause we're moving left - so negative) than the ground width, we reset to 0 and the effect repeats.
+
+## Updating the Ground Class
+
+With that explanation in mind, make the following changes to the `Ground` class:
+
+```typescript {9-12,19,21-22,28,31-39,41-71} title="src/entities/ground.ts"
+import { SpriteData } from "#/components/sprite-data";
+import { Vector2d } from "#/components/vector2d";
+
+type GroundOptions = {
+  position: Vector2d;
+  spriteData: SpriteData;
+  spriteSheet: HTMLImageElement;
+
+  /**
+   * This is in pixels **per frame**.
+   */
+  scrollSpeed: number;
+};
+
+export class Ground {
+  position: Vector2d;
+  spriteData: SpriteData;
+  spriteSheet: HTMLImageElement;
+  scrollSpeed: number;
+
+  // Track the current scroll position separately from the position.
+  scrollPositionX = 0;
+
+  constructor(options: GroundOptions) {
+    this.position = options.position;
+    this.spriteData = options.spriteData;
+    this.spriteSheet = options.spriteSheet;
+    this.scrollSpeed = options.scrollSpeed;
+  }
+
+  public update() {
+    this.scrollPositionX -= this.scrollSpeed;
+
+    // Once the scroll position is the width of our ground frame, reset it
+    // back to 0 to create the loop effect.
+    if (this.scrollPositionX <= -this.spriteData.width) {
+      this.scrollPositionX = 0;
+    }
+  }
+
+  public draw(context: CanvasRenderingContext2D) {
+    // scrollPositionX is constantly in the negative direction, so we need to
+    // get the absolute value for the sampling below.
+    const diff = Math.abs(this.scrollPositionX);
+
+    // Draw call for A
+    context.drawImage(
+      this.spriteSheet,
+      this.spriteData.sourceX + diff,
+      this.spriteData.sourceY,
+      this.spriteData.width - diff,
+      this.spriteData.height,
+      this.position.x,
+      this.position.y,
+      this.spriteData.width - diff,
+      this.spriteData.height
+    );
+
+    // Draw call for B
+    context.drawImage(
+      this.spriteSheet,
+      this.spriteData.sourceX,
+      this.spriteData.sourceY,
+      diff,
+      this.spriteData.height,
+      context.canvas.width - diff,
+      this.position.y,
+      diff,
+      this.spriteData.height
+    );
+  }
+}
+```
+
+:::tip
+
+Try to map the arguments for both draw calls to the diagram above, it will help to make the concept stick. They are color coded to help tell the draw and sampling apart.
+
+:::
+
+The `update()` and `draw()` methods need to be called repeatedly to constantly modify `scrollPositionX`, and render the current state. For that we'll need a game loop.
+
+Before we move on, update the contructor call back in `main.ts` to set the `scrollSpeed`:
+
+```typescript {5} title="src/main.ts"
+const ground = new Ground({
+  position: new Vector2d(0, config.gameHeight - spriteMap.ground.height),
+  spriteData: spriteMap.ground,
+  spriteSheet,
+  scrollSpeed: 2,
+});
+```
+
+## Game Loop
+
+Games run within a loop, often referred to as the _game loop_. This loop typically runs on an interval to read input, update game objects, and display (render) the current state of the game to the player. A single iteration of the game loop is also commonly referred to as a _frame_, and the number of frames we can achieve in a second is our _frame rate_. Common frame rates might be 30fps and 60fps, where fps means _frames per second_. These frame rates help dictate our window of time to update and render the game.
+
+Let's break a sample frame rate down. At 60fps, we would have roughly 0.01666 seconds (1 / 60) or about 16.67 ms to process a single frame. That may not seem like a lot of time, but you may be surprised what can be achieved in such a short period on a computer. Flappy Bird isn't a very intense game, so we shouldn't run into any frame rate issues.
+
+Our game loop will make use of [requestAnimationFrame()](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame). It takes a callback function which is called before the next repaint in the browser. It also matches your display refresh rate, but it's possible it will be higher. An important thing to remember is `requestAnimationFrame()` does not give us a constant game loop with a single call, it simply schedules our callback function for the next available opportunity. This is up to the browser. So we need to make sure the callback function itself also calls `requestAnimationFrame()` to reschedule itself again, giving us a game _loop_.
+
+Here's a sample game loop:
+
+```typescript title="src/main.ts"
+/**
+ * A single iteration of our game loop.
+ */
+const frame = () => {
+  // clear canvas
+  // update logic
+  // draw logic
+
+  // Schedule the next frame.
+  requestAnimationFrame(frame);
+};
+
+// Start the game loop.
+requestAnimationFrame(frame);
+```
+
+It's pretty common to group update logic such as moving entities and checking for collisions, and draw logic such as drawing sprites.
+
+## Tieing It All Together
+
+We have all the components to render the background and scrolling ground, we just need to fleshout the `frame` function. Note that we draw the background image first, then the ground. Draw order matters. We're also clearing the canvas before any drawing occurs. We redraw the state of the game each frame.
+
+:::info Canvas Draw order
+
+It's important to remember that the order in which you draw things on the canvas is important. The first thing you draw is the last thing you see. Another way to put it would be: the things your draw first are closer to the background, and the things you draw last are closer to the foreground.
+
+In this way it can sometimes help to imagine your drawing order as layers.
+
+:::
+
+Move the `update()` and `draw()` calls to the `frame()` function:
+
+```typescript title="src/main.ts"
+const frame = () => {
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  ground.update();
+
+  // Draw the background
+  context.drawImage(
+    spriteSheet,
+    spriteMap.background.sourceX,
+    spriteMap.background.sourceY,
+    spriteMap.background.width,
+    spriteMap.background.height,
+    0,
+    0,
+    spriteMap.background.width,
+    spriteMap.background.height
+  );
+
+  ground.draw(context);
+
+  requestAnimationFrame(frame);
+};
+```
+
+We haven't talked about [`clearRect()`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/clearRect) yet. It's a method that clears a rectangular area of the canvas. We're starting at the top left corner of the canvas and clearing the entire canvas.
+
+:::tip Clearing the Canvas
+
+Try removing the call to `clearCanvas()` and see what happens.
+
+:::
+
+## Final Observations
+
+You might notice the ground is scrolling _quite_ fast. This is because we're scrolling the ground at `2` pixels **per frame**. So if your monitor is 60hz, that's 120 pixels per second. If you're at 120hz, that's 240, and so on. This isn't going to scale well. We can't have the game experience differing so drastically due to display hardware.
+
+Reasoning about the speed of objects in the game in pixels per frame isn't a very intuitive way of dealing with change over time. It would be nice to focus on a higher unit of time, like pixels per _second_.
+
+We'll need to account for the change in _time_ for every frame of the game loop. We'll cover this in the next section.

@@ -30,6 +30,8 @@ export const loader: LoaderFunction = async ({ params }) => {
     // invariant(params.courseId, "expected params.courseId");
     invariant(params["*"], "expected params.*");
 
+    console.log({ coursesRoute: params["*"] });
+
     // const courseId = params.courseId;
     // const slug = `${courseId}/${params["*"]}`;
 

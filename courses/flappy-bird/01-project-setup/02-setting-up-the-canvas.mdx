@@ -36,10 +36,8 @@ Great, but what _is_ the `2d` context?
 
 The canvas element provides the surface we draw to, but it does not provide the API we need to make that happen. This is the job of the [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D) object, which we can obtain by calling the [getContext](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext) method on the canvas element. There are other contexts as well, such as `webgl` for 3d.
 
-:::info Error Handling
-
+:::alert{title="Error Handling" type="info"}
 You'll notice the use of `if (context == null)` checks in our code. We're intentionally avoiding the null-assertion opterator (`!`) in favour of clearer assertions to get type safey.
-
 :::
 
 ## Width and Height

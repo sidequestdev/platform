@@ -3,6 +3,7 @@ import { bundleMDX } from "mdx-bundler";
 import fs from "node:fs/promises";
 import path from "node:path";
 import remarkDirective from "remark-directive";
+import { remarkMdxImages } from "remark-mdx-images";
 import invariant from "tiny-invariant";
 import yaml from "yaml";
 import { directoryTree } from "~/lib/directory-tree";
@@ -44,8 +45,11 @@ export type ToCDirectory = {
 export async function getMdxPage(slug: string) {
   const courseId = slug.split("/").shift();
 
+  console.log({ courseId, slug });
+
   const courses = await directoryTree(coursesPath, {
     attributes: ["size", "extension", "type"],
+    exclude: /img/i,
     extensions: /\.mdx?$/,
   });
 
@@ -63,6 +67,7 @@ export async function getMdxPage(slug: string) {
     ]);
 
   const filepath = path.join(coursesPath, `${slug}.mdx`);
+  console.log({ filepath });
 
   const pageTableOfContents: Array<RemarkTableOfContentsItem> = [];
 
@@ -76,6 +81,7 @@ export async function getMdxPage(slug: string) {
     mdxOptions(options) {
       options.remarkPlugins = [
         ...(options.remarkPlugins ?? []),
+        remarkMdxImages,
         remarkDirective,
         remarkAlert,
         [remarkToc, { exportRef: pageTableOfContents }],
@@ -87,6 +93,20 @@ export async function getMdxPage(slug: string) {
         rehypeAutoLinkHeadings,
         rehypeCodeTitles,
       ];
+
+      return options;
+    },
+    esbuildOptions: (options) => {
+      // options.outdir = path.join(process.cwd(), "public", "images", slug);
+      // options.publicPath = `/images/${slug}`;
+      // options.write = true;
+      options.loader = {
+        ...options.loader,
+        ".png": "dataurl",
+        ".jpeg": "dataurl",
+        ".jpg": "dataurl",
+        ".JPG": "dataurl",
+      };
 
       return options;
     },

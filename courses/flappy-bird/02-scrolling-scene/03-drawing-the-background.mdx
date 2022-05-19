@@ -1,0 +1,80 @@
+---
+sidebar_position: 3
+title: Drawing the Background
+---
+
+# Drawing the Background
+
+## What is a Sprite Sheet?
+
+If you aren't familiar with sprite sheets, they are a way to organize several images (sprites) into a single larger image. They're usually associated with some metadata that helps identify a sprite by it's position and size within the sheet. It's common to see animations in a sprite sheet as well.
+
+:::alert{title="Note" type="info"}
+There's nothing _wrong_ with storing your images separately if that's what you'd like to do. We just like the idea of having a single image that contains all of the sprites, and a single metadata file that holds information about the images within. Where are they located? What are the dimensions? etc.
+:::
+
+Here's a diagram to give you a better idea:
+
+![Sprite Sheet Diagram](./img/spritesheet-explainer-dark.png)
+
+:::alert{title="What is a Sprite?" type="info"}
+If you aren't familiar with the term _sprite_, think of it as a 2d bitmap image. We'll use the terms image and sprite interchangeably in this course.
+:::
+
+## Background Sprite Metadata
+
+To draw the background, we're going leverage the metadata within `spriteMap`, which is exported from the `src/sprite-map.ts` file. If you look in that file for the `background` property, you'll see that it contains information about the image location and size:
+
+```typescript {3-8} title="src/sprite-map.ts"
+export const spriteMap = {
+  // ...
+  background: {
+    sourceX: 512,
+    sourceY: 0,
+    width: 512,
+    height: 512,
+  },
+  // ...
+};
+```
+
+`sourceX` and `sourceY` are the coordinates of the top left corner of the sprite within the sprite sheet. `width` and `height` are the dimensions of the sprite.
+
+This diagram should clear it up:
+
+![Frame diagram](./img/frame-diagram-dark.png)
+
+## Drawing the Background Image
+
+We're going to use the [drawImage()](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage) method of the `CanvasRenderingContext2D` to render our image to the canvas. `drawImage()` has an overload that suits our needs perfectly.
+
+Update `main.ts` to render the background:
+
+```typescript {4,7-18} title="src/main.ts"
+import spriteSheetUrl from "#/assets/image/spritesheet.png";
+import { config } from "#/config";
+import { loadImage } from "#/lib/asset-loader";
+import { spriteMap } from "#/sprite-map";
+
+// Bottom of file
+// Draw the background
+context.drawImage(
+  spriteSheet,
+  spriteMap.background.sourceX,
+  spriteMap.background.sourceY,
+  spriteMap.background.width,
+  spriteMap.background.height,
+  0,
+  0,
+  spriteMap.background.width,
+  spriteMap.background.height
+);
+```
+
+The first argument of this call is the image we want to sample. It's our _source_.
+
+The next four arguments of the `drawImage()` call line up nicely with the diagram above.
+
+The last four arguments of the `drawImage()` call are the destination related arguments. Our _destination_ here is the canvas. The first two are the x and y position of the top left corner of where we intend to place the image _on the canvas_. The last two are the destination width and height. It's common for the source and destination width/height to be the same.
+
+You'll notice a gap on the bottom of the canvas. This will get filled once we render the ground.

@@ -1,0 +1,111 @@
+---
+sidebar_position: 4
+title: Drawing the Ground
+---
+
+# Drawing the Ground
+
+## Ground Class
+
+At this point let's render the ground to fill the gap at the bottom of the canvas. We know the ground is going to need to scroll over time, so there's going to be more logic than just rendering. We'll create a `Ground` class in preparation for this, then go over all the new information.
+
+Go ahead and create the class:
+
+```typescript title="src/entities/ground.ts"
+import { SpriteData } from "#/components/sprite-data";
+import { Vector2d } from "#/components/vector2d";
+
+type GroundOptions = {
+  position: Vector2d;
+  spriteData: SpriteData;
+  spriteSheet: HTMLImageElement;
+};
+
+export class Ground {
+  position: Vector2d;
+  spriteData: SpriteData;
+  spriteSheet: HTMLImageElement;
+
+  constructor(options: GroundOptions) {
+    this.position = options.position;
+    this.spriteData = options.spriteData;
+    this.spriteSheet = options.spriteSheet;
+  }
+
+  public draw(context: CanvasRenderingContext2D) {
+    context.drawImage(
+      this.spriteSheet,
+      this.spriteData.sourceX,
+      this.spriteData.sourceY,
+      this.spriteData.width,
+      this.spriteData.height,
+      this.position.x,
+      this.position.y,
+      this.spriteData.width,
+      this.spriteData.height
+    );
+  }
+}
+```
+
+Let's break this down.
+
+## SpriteData Component
+
+We've discussed leveraging sprite sheet metadata when we rendered the background. We're going to need to start passing this metadata around so our classes can leverage this information to draw. We just never _named_ it. We'll call this `SpriteData` to keep hammering the point home that this is sprite related.
+
+Let's create the class to capture that information:
+
+```typescript title="src/components/sprite-data.ts"
+/**
+ * Represents rectangular sprite data from a source image.
+ */
+export class SpriteData {
+  constructor(
+    /**
+     * The x position of the sprite in the source image.
+     */
+    public sourceX: number,
+
+    /**
+     * The y position of the sprite in the source image.
+     */
+    public sourceY: number,
+
+    public width: number,
+    public height: number
+  ) {}
+}
+```
+
+## What is a Vector2d?
+
+In game development, we often need to represent `x` and `y` values for many things such as: position, velocity, and direction, to name a few. So rather than having variables such as: `positionX`, `positionY`, `velocityX`, and `velocityY`, we can use a vector as our common data structure. This also opens us up to vector math down the road, even if we don't use it in this project. Vectors are so common in game development that you'll likely come across them when Googling for solutions to day to day problems. As an example, in a top down shooter you could use vector math to calculate the change needed to make the player _look at_ (rotate to) an enemy.
+
+We're adding the 2d suffix to make it clear that this is a vector of information in 2d space. You can imagine how this might scale for a 3d game and store `x`, `y`, and `z` values.
+
+Let's create a new file:
+
+```typescript title="src/components/vector2d.ts"
+export class Vector2d {
+  constructor(public x = 0, public y = 0) {}
+}
+```
+
+## Creating a Ground Instance
+
+Add an instance of `Ground` to the bottom of the `main.ts` file, and call its `draw()` method.
+
+```typescript title="src/main.ts"
+const ground = new Ground({
+  position: new Vector2d(0, config.gameHeight - spriteMap.ground.height),
+  spriteData: spriteMap.ground,
+  spriteSheet,
+});
+
+ground.draw(context);
+```
+
+Notice to position the ground we're subtracting the height of the ground from the height of the canvas. This will snap it to the bottom.
+
+Next, let's make the ground move.
