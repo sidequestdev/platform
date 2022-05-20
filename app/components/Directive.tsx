@@ -12,6 +12,7 @@ export const Directive = (
   props: React.DetailedHTMLProps<DirectiveProps, HTMLDivElement>
 ) => {
   if (props.type === "info") {
+    console.log(props);
     return (
       <Alert icon={<AlertCircle size={24} />} title={props.title} color="cyan">
         {props.children}

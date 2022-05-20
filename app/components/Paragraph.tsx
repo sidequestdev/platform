@@ -11,7 +11,7 @@ export const Paragraph = (
     typeof props.children === "object" &&
     "type" in props.children &&
     (props.children.type === "img" ||
-      props.children?.props.src.includes("data:image"))
+      props.children?.props?.src?.includes("data:image"))
   ) {
     return <>{props.children}</>;
   }
