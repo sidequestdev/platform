@@ -7,6 +7,7 @@ import { remarkMdxImages } from "remark-mdx-images";
 import invariant from "tiny-invariant";
 import yaml from "yaml";
 import { directoryTree } from "~/lib/directory-tree";
+import rehypeImageSizes from "~/lib/rehype-plugins/rehype-image-sizes";
 import { remarkAlert } from "~/lib/remark-plugins/remark-alert";
 import type { RemarkTableOfContentsItem } from "~/lib/remark-plugins/remark-toc";
 import remarkToc from "~/lib/remark-plugins/remark-toc";
@@ -77,11 +78,12 @@ export async function getMdxPage(slug: string) {
     description?: string;
   }>({
     file: filepath,
-    cwd: coursesPath,
+    // cwd: coursesPath,
+    cwd: path.join(__dirname, "..", "app/components"),
     mdxOptions(options) {
       options.remarkPlugins = [
         ...(options.remarkPlugins ?? []),
-        remarkMdxImages,
+        // remarkMdxImages,
         remarkDirective,
         remarkAlert,
         [remarkToc, { exportRef: pageTableOfContents }],
@@ -89,6 +91,7 @@ export async function getMdxPage(slug: string) {
 
       options.rehypePlugins = [
         ...(options.rehypePlugins ?? []),
+        rehypeImageSizes,
         rehypeSlug,
         rehypeAutoLinkHeadings,
         rehypeCodeTitles,
@@ -106,6 +109,7 @@ export async function getMdxPage(slug: string) {
         ".jpeg": "dataurl",
         ".jpg": "dataurl",
         ".JPG": "dataurl",
+        ".js": "jsx",
       };
 
       return options;

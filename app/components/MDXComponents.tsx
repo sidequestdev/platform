@@ -1,4 +1,4 @@
-import { Anchor } from "@mantine/core";
+import { Anchor, Image } from "@mantine/core";
 import type { ComponentMap } from "mdx-bundler/client";
 import { Code } from "./Code";
 import { Directive } from "./Directive";
@@ -13,15 +13,23 @@ export const MDXComponents: ComponentMap = {
   ) => <Anchor>{props.children}</Anchor>,
   code: Code,
   div: Directive,
-  // img: (
-  //   props: React.DetailedHTMLProps<
-  //     React.ImgHTMLAttributes<HTMLImageElement>,
-  //     HTMLImageElement
-  //   >
-  // ) => {
-  //   console.log(props);
-
-  //   return <Image {...props} ref={null} withPlaceholder />;
-  // },
+  img: (
+    props: React.DetailedHTMLProps<
+      React.ImgHTMLAttributes<HTMLImageElement>,
+      HTMLImageElement
+    >
+  ) => {
+    return (
+      <Image
+        {...props}
+        ref={null}
+        fit="contain"
+        height={parseInt(`${props.height}`)}
+        style={{
+          margin: "24px 0",
+        }}
+      />
+    );
+  },
   p: Paragraph,
 };

@@ -46,6 +46,7 @@
     "github-slugger": "^1.4.0",
     "hast-util-to-string": "^2.0.0",
     "hastscript": "^7.0.2",
+    "image-size": "^1.0.1",
     "marked": "^4.0.16",
     "mdx-bundler": "^9.0.0",
     "react": "^17.0.2",

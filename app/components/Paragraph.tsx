@@ -1,4 +1,3 @@
-import { Image } from "@mantine/core";
 import React from "react";
 
 export const Paragraph = (
@@ -11,9 +10,10 @@ export const Paragraph = (
     props.children &&
     typeof props.children === "object" &&
     "type" in props.children &&
-    props.children.type === "img"
+    (props.children.type === "img" ||
+      props.children?.props.src.includes("data:image"))
   ) {
-    return <Image {...props.children.props} fit="contain" height={305} />;
+    return <>{props.children}</>;
   }
 
   return <p {...props} />;
