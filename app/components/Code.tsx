@@ -15,6 +15,8 @@ export const Code = (
     return <InlineCode>{children}</InlineCode>;
   }
 
+  console.log("<Code>", props);
+
   invariant(className, "expected className");
   invariant(typeof children === "string", "expected children");
 

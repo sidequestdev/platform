@@ -3,10 +3,10 @@ import { bundleMDX } from "mdx-bundler";
 import fs from "node:fs/promises";
 import path from "node:path";
 import remarkDirective from "remark-directive";
-import { remarkMdxImages } from "remark-mdx-images";
 import invariant from "tiny-invariant";
 import yaml from "yaml";
 import { directoryTree } from "~/lib/directory-tree";
+import rehypeCodeDetails from "~/lib/rehype-plugins/rehype-code-details";
 import rehypeImageSizes from "~/lib/rehype-plugins/rehype-image-sizes";
 import { remarkAlert } from "~/lib/remark-plugins/remark-alert";
 import type { RemarkTableOfContentsItem } from "~/lib/remark-plugins/remark-toc";
@@ -68,7 +68,6 @@ export async function getMdxPage(slug: string) {
     ]);
 
   const filepath = path.join(coursesPath, `${slug}.mdx`);
-  console.log({ filepath });
 
   const pageTableOfContents: Array<RemarkTableOfContentsItem> = [];
 
@@ -91,10 +90,12 @@ export async function getMdxPage(slug: string) {
 
       options.rehypePlugins = [
         ...(options.rehypePlugins ?? []),
+        // rehypePrism,
+        rehypeCodeDetails,
         rehypeImageSizes,
         rehypeSlug,
         rehypeAutoLinkHeadings,
-        rehypeCodeTitles,
+        // rehypeCodeTitles,
       ];
 
       return options;
