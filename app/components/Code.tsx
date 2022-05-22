@@ -2,11 +2,19 @@ import { Code as InlineCode } from "@mantine/core";
 import type { PrismProps } from "@mantine/prism";
 import { Prism } from "@mantine/prism";
 import type { PrismSharedProps } from "@mantine/prism/lib/types";
+import React from "react";
 import invariant from "tiny-invariant";
+import { SiTypescript } from "react-icons/si";
 
-export const Code = (
-  props: React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>
-) => {
+interface CodeProps
+  extends React.DetailedHTMLProps<
+    React.HTMLAttributes<HTMLElement>,
+    HTMLElement
+  > {
+  "data-title"?: string;
+}
+
+export const Code = (props: CodeProps) => {
   const { className, children } = props;
 
   // If there is no className, this in an inline code block.
@@ -15,7 +23,7 @@ export const Code = (
     return <InlineCode>{children}</InlineCode>;
   }
 
-  console.log("<Code>", props);
+  console.log("<Code>", props, props["data-title"]);
 
   invariant(className, "expected className");
   invariant(typeof children === "string", "expected children");
@@ -27,23 +35,43 @@ export const Code = (
 
   invariant(language, "expected language");
 
-  // const title = className?.split(":")[1];
-
   const options: PrismProps = {
     children,
     language,
     withLineNumbers: true,
   };
 
-  return (
-    <Prism
-      {...options}
-      styles={{
-        code: {
-          border: "1px solid #aaa",
-          fontSize: "14px",
-        },
-      }}
-    />
-  );
+  const styles = {
+    code: {
+      border: "1px solid #aaa",
+      fontSize: "14px",
+    },
+  };
+
+  const title = props["data-title"];
+
+  if (title != null) {
+    return (
+      <Prism.Tabs
+        styles={{
+          ...styles,
+          tab: {
+            ...styles.code,
+            borderBottom: 0,
+          },
+        }}
+      >
+        <Prism.Tab
+          language={language}
+          withLineNumbers
+          label={title}
+          icon={<SiTypescript />}
+        >
+          {children}
+        </Prism.Tab>
+      </Prism.Tabs>
+    );
+  }
+
+  return <Prism {...options} styles={styles} />;
 };
