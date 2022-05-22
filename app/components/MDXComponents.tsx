@@ -12,7 +12,7 @@ export const MDXComponents: ComponentMap = {
       HTMLAnchorElement
     >
   ) => <Anchor>{props.children}</Anchor>,
-  // code: Code,
+  code: Code,
   div: Directive,
   img: (
     props: React.DetailedHTMLProps<
