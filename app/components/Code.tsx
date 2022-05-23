@@ -12,7 +12,18 @@ interface CodeProps
     HTMLElement
   > {
   "data-title"?: string;
+
+  /**
+   * Array serialized as string
+   * @example `1 2 3 4`
+   */
+  "data-lines-added"?: string;
 }
+
+const deleted = { color: "red", label: "-" };
+const added = { color: "green", label: "+" };
+
+const isTypeScript = (language: string) => ["tsx", "ts"].includes(language);
 
 export const Code = (props: CodeProps) => {
   const { className, children } = props;
@@ -39,6 +50,7 @@ export const Code = (props: CodeProps) => {
     children,
     language,
     withLineNumbers: true,
+    highlightLines: {},
   };
 
   const styles = {
@@ -49,6 +61,17 @@ export const Code = (props: CodeProps) => {
   };
 
   const title = props["data-title"];
+  const linesAdded = props["data-lines-added"]?.split(" ") ?? [];
+
+  const highlightLines = {
+    ...linesAdded.reduce(
+      (lines, line) => ({
+        ...lines,
+        [line]: added,
+      }),
+      {}
+    ),
+  };
 
   if (title != null) {
     return (
@@ -65,7 +88,8 @@ export const Code = (props: CodeProps) => {
           language={language}
           withLineNumbers
           label={title}
-          icon={<SiTypescript />}
+          highlightLines={highlightLines}
+          icon={isTypeScript(language) ? <SiTypescript /> : null}
         >
           {children}
         </Prism.Tab>
@@ -73,5 +97,5 @@ export const Code = (props: CodeProps) => {
     );
   }
 
-  return <Prism {...options} styles={styles} />;
+  return <Prism {...options} highlightLines={highlightLines} styles={styles} />;
 };
