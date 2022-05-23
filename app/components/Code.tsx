@@ -23,7 +23,8 @@ interface CodeProps
 const deleted = { color: "red", label: "-" };
 const added = { color: "green", label: "+" };
 
-const isTypeScript = (language: string) => ["tsx", "ts"].includes(language);
+const isTypeScript = (language: string) =>
+  ["tsx", "ts", "typescript"].includes(language);
 
 export const Code = (props: CodeProps) => {
   const { className, children } = props;
