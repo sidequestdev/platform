@@ -11,9 +11,10 @@ Let's start by loading our sprite sheet image so we can draw the background.
 
 It would be convenient to use `await` to load an image. We'll create a promisifed wrapper around the image loading process to accomplish this.
 
-:::alert{title="Image Loading Handlers" type="info"}
-Be sure to set your image handlers _before_ you set the `src` attribute. Once `src` is set, the browser will start loading the image.
-:::
+<AlertInfo title="Image Loading Handlers">
+  Be sure to set your image handlers _before_ you set the `src` attribute. Once
+  `src` is set, the browser will start loading the image.
+</AlertInfo>
 
 Create a new file:
 
@@ -35,7 +36,7 @@ export const loadImage = (path: string): Promise<HTMLImageElement> =>
 
 Now let's modify `main.ts` to load the sprite sheet:
 
-```typescript {1,3,5} title="src/main.ts"
+```typescript +{1,3,5} title="src/main.ts"
 import spriteSheetUrl from "#/assets/image/spritesheet.png";
 import { config } from "#/config";
 import { loadImage } from "#/lib/asset-loader";
@@ -48,10 +49,11 @@ if (canvas === null) {
 }
 ```
 
-:::alert{title="Importing Assets" type="info"}
-If you haven't seen asset imports like `import spriteSheetUrl from "#/assets/image/spritesheet.png"` before, it might seem strange. Vite is handling this for us behind the scenes. Importing a static asset will return the resolved public URL when it is served, so we need to use this URL instead of the relative path.
+<AlertInfo title="Importing Assets">
+  If you haven't seen asset imports like `import spriteSheetUrl from "#/assets/image/spritesheet.png"` before, it might seem strange. Vite is handling this for us behind the scenes. Importing a static asset will return the resolved public URL when it is served, so we need to use this URL instead of the relative path.
 
 See [Importing Asset as URL](https://vitejs.dev/guide/assets.html#importing-asset-as-url) from the documentation.
-:::
+
+</AlertInfo>
 
 With the sprite sheet loaded, we'll draw the background next.

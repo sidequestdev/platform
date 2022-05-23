@@ -22,7 +22,7 @@ We're going to track a scrolling position along the x-axis: `scrollPositionX`. I
 
 With that explanation in mind, make the following changes to the `Ground` class:
 
-```typescript {9-12,19,21-22,28,31-39,41-71} title="src/entities/ground.ts"
+```typescript +{9-12,19,21-22,28,31-39,41-71} title="src/entities/ground.ts"
 import { SpriteData } from "#/components/sprite-data";
 import { Vector2d } from "#/components/vector2d";
 
@@ -97,17 +97,17 @@ export class Ground {
 }
 ```
 
-:::tip
-
-Try to map the arguments for both draw calls to the diagram above, it will help to make the concept stick. They are color coded to help tell the draw and sampling apart.
-
-:::
+<AlertTip>
+  Try to map the arguments for both draw calls to the diagram above, it will
+  help to make the concept stick. They are color coded to help tell the draw and
+  sampling apart.
+</AlertTip>
 
 The `update()` and `draw()` methods need to be called repeatedly to constantly modify `scrollPositionX`, and render the current state. For that we'll need a game loop.
 
 Before we move on, update the contructor call back in `main.ts` to set the `scrollSpeed`:
 
-```typescript {5} title="src/main.ts"
+```typescript +{5} title="src/main.ts"
 const ground = new Ground({
   position: new Vector2d(0, config.gameHeight - spriteMap.ground.height),
   spriteData: spriteMap.ground,
@@ -149,13 +149,12 @@ It's pretty common to group update logic such as moving entities and checking fo
 
 We have all the components to render the background and scrolling ground, we just need to fleshout the `frame` function. Note that we draw the background image first, then the ground. Draw order matters. We're also clearing the canvas before any drawing occurs. We redraw the state of the game each frame.
 
-:::info Canvas Draw order
-
-It's important to remember that the order in which you draw things on the canvas is important. The first thing you draw is the last thing you see. Another way to put it would be: the things your draw first are closer to the background, and the things you draw last are closer to the foreground.
+<AlertInfo title="Canvas Draw Order">
+  It's important to remember that the order in which you draw things on the canvas is important. The first thing you draw is the last thing you see. Another way to put it would be: the things your draw first are closer to the background, and the things you draw last are closer to the foreground.
 
 In this way it can sometimes help to imagine your drawing order as layers.
 
-:::
+</AlertInfo>
 
 Move the `update()` and `draw()` calls to the `frame()` function:
 
@@ -186,11 +185,9 @@ const frame = () => {
 
 We haven't talked about [`clearRect()`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/clearRect) yet. It's a method that clears a rectangular area of the canvas. We're starting at the top left corner of the canvas and clearing the entire canvas.
 
-:::tip Clearing the Canvas
-
-Try removing the call to `clearCanvas()` and see what happens.
-
-:::
+<AlertTip title="Clearing the Canvas">
+  Try removing the call to `clearCanvas()` and see what happens.
+</AlertTip>
 
 ## Final Observations
 

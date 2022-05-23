@@ -21,9 +21,8 @@ We're going to change the `scrollSpeed` to `120`, but in terms of pixels per sec
 
 Let's talk about how we're going to calculate and use delta time. Something we haven't mentioned is that the `callback` function in `requestAnimationFrame()` is passed a single argument of type [DOMHighResTimeStamp](https://developer.mozilla.org/en-US/docs/Web/API/DOMHighResTimeStamp), which we'll abbreviate to `hrt`. `hrt` is a millisecond value that is constantly increasing from the start of the documents lifetime ([time origin](https://developer.mozilla.org/en-US/docs/Web/API/DOMHighResTimeStamp#The_time_origin)). So each time our callback is called we can expect `hrt` to have increased. If we store the last (previous frame) `hrt` since our callback was called, and use the current (current frame) `hrt`, we can determine the delta time in milliseconds within a given frame: `const dt = hrt - last`. Now remember we wanted to think of velocity in terms of seconds, not milliseconds, so lastly we need to normalize this delta time into seconds: `const dt = (hrt - last) / 1000`;
 
-:::info Accounting For Inactive Tabs
-
-When the user clicks off the tab the browser will stop executing our `frame()` function. When they return, the browser will start executing our `frame()` function again. This means that `hrt` could be quite far ahead of `last`, and the delta time we calculate could be really large. This would cause a massive _jump_ in our game.
+<AlertInfo title="Accounting For Inactive Tabs">
+  When the user clicks off the tab the browser will stop executing our `frame()` function. When they return, the browser will start executing our `frame()` function again. This means that `hrt` could be quite far ahead of `last`, and the delta time we calculate could be really large. This would cause a massive _jump_ in our game.
 
 We'll account for this by always clamping the delta time to maximum of 1 second (1000 milliseconds):
 
@@ -31,7 +30,7 @@ We'll account for this by always clamping the delta time to maximum of 1 second 
 const dt = Math.min(1000, hrt - last) / 1000;
 ```
 
-:::
+</AlertInfo>
 
 You might be wondering, what should we set `last` to for the first time? After all, we need a single frame from the past to calculate the current frames delta time. We can leverage [performance.now()](https://developer.mozilla.org/en-US/docs/Web/API/Performance/now) to set the initial value outside of our `frame` function. It also returns a DOMHighResTimeStamp, so we'll just use it to capture the current point in time in the documents lifetime before the first call to `requestAnimationFrame()`.
 

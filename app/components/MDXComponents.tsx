@@ -1,6 +1,8 @@
 import { Alert, Anchor, Image } from "@mantine/core";
 import type { ComponentMap } from "mdx-bundler/client";
 import { AlertCircle } from "tabler-icons-react";
+import { AlertInfo } from "./Alerts/AlertInfo";
+import { AlertTip } from "./Alerts/AlertTip";
 import { Code } from "./Code";
 import { Directive } from "./Directive";
 import { Paragraph } from "./Paragraph";
@@ -37,4 +39,10 @@ export const MDXComponents: ComponentMap = {
   Alert,
   // @ts-ignore
   AlertCircle,
+
+  // Alerts
+  // @ts-ignore
+  AlertInfo,
+  // @ts-ignore
+  AlertTip,
 };

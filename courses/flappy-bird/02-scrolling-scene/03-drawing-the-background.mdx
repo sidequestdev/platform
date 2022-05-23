@@ -9,28 +9,27 @@ title: Drawing the Background
 
 If you aren't familiar with sprite sheets, they are a way to organize several images (sprites) into a single larger image. They're usually associated with some metadata that helps identify a sprite by it's position and size within the sheet. It's common to see animations in a sprite sheet as well.
 
-:::alert{title="Note" type="info"}
-There's nothing _wrong_ with storing your images separately if that's what you'd like to do. We just like the idea of having a single image that contains all of the sprites, and a single metadata file that holds information about the images within. Where are they located? What are the dimensions? etc.
-:::
+<AlertInfo title="Note">
+  There's nothing _wrong_ with storing your images separately if that's what
+  you'd like to do. We just like the idea of having a single image that contains
+  all of the sprites, and a single metadata file that holds information about
+  the images within. Where are they located? What are the dimensions? etc.
+</AlertInfo>
 
 Here's a diagram to give you a better idea:
 
 ![Sprite sheet diagram](./img/spritesheet-explainer-dark.png)
 
-<Alert
-  icon={<AlertCircle size={24} />}
-  title={"What is a Sprite?"}
-  color="cyan"
->
+<AlertInfo title="What is a Sprite?">
   If you aren't familiar with the term _sprite_, think of it as a 2d bitmap
   image. We'll use the terms image and sprite interchangeably in this course.
-</Alert>
+</AlertInfo>
 
 ## Background Sprite Metadata
 
 To draw the background, we're going leverage the metadata within `spriteMap`, which is exported from the `src/sprite-map.ts` file. If you look in that file for the `background` property, you'll see that it contains information about the image location and size:
 
-```typescript {3-8} title="src/sprite-map.ts"
+```typescript +{3-8} title="src/sprite-map.ts"
 export const spriteMap = {
   // ...
   background: {
@@ -55,7 +54,7 @@ We're going to use the [drawImage()](https://developer.mozilla.org/en-US/docs/We
 
 Update `main.ts` to render the background:
 
-```typescript {4,7-18} title="src/main.ts"
+```typescript +{4,7-18} title="src/main.ts"
 import spriteSheetUrl from "#/assets/image/spritesheet.png";
 import { config } from "#/config";
 import { loadImage } from "#/lib/asset-loader";

@@ -170,3 +170,24 @@ This project uses ESLint for linting. That is configured in `.eslintrc.js`.
 ### Formatting
 
 We use [Prettier](https://prettier.io/) for auto-formatting in this project. It's recommended to install an editor plugin (like the [VSCode Prettier plugin](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)) to get auto-formatting on save. There's also a `npm run format` script you can run to format all files in the project.
+
+## MDX
+
+### Callouts
+
+You can use two styles to create callouts, a directive:
+
+```tsx
+:::alert{title="Image Loading Handlers" type="info"}
+Be sure to set your image handlers _before_ you set the `src` attribute. Once `src` is set, the browser will start loading the image.
+:::
+```
+
+and a React component:
+
+```tsx
+<AlertInfo title="NPX">
+  You can learn more about npx by visiting the
+  [docs](https://docs.npmjs.com/cli/v8/commands/npx).
+</AlertInfo>
+```
