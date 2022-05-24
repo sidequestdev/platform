@@ -1,11 +1,11 @@
-import { CanvasProps } from "@site/src/components/Canvas";
-import { useAnimationFrame } from "@site/src/hooks/useAnimationFrame";
 import React, { useRef } from "react";
+import type { CanvasProps } from "~/components/Canvas";
+import { useAnimationFrame } from "~/lib/hooks/useAnimationFrame";
 
 type RotateCanvasProps = Omit<CanvasProps, "draw">;
 
 export const RotateCanvasDefaultOrigin: React.FC<RotateCanvasProps> = (
-  props: RotateCanvasProps,
+  props: RotateCanvasProps
 ) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -30,12 +30,12 @@ export const RotateCanvasDefaultOrigin: React.FC<RotateCanvasProps> = (
         canvasRef.current.width / 2 - 25,
         canvasRef.current.height / 2 - 25,
         50,
-        50,
+        50
       );
 
       ctx.resetTransform();
     },
-    [canvasRef],
+    [canvasRef]
   );
 
   return (

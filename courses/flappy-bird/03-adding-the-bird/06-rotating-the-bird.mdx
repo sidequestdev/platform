@@ -27,7 +27,7 @@ To change the canvas origin we can use the [`translate()`](https://developer.moz
 <AlertInfo title="Radians to Degrees">
 Don't worry if you're not familiar with radians for now. We can convert degrees to radians using the following formula:
 
-`radians = degrees * (Math.PI / 180)`.
+`radians = degrees * (Math.PI / 180)`
 
 </AlertInfo>
 
@@ -68,13 +68,12 @@ After we move the origin to the center of the canvas, we still want to center th
 
 Lastly, we need to reset the canvas transform after we're done translating and rotating. This is done by calling [`resetTransform()`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/resetTransform). We need to do this because the canvas is _stateful_. When we apply transformations, they are _remembered_. We reset the transform each frame to reset assumptions about where the origin is. For example, when we do something as simple as clearing the canvas, we use `context.clearRect(0, 0, canvas.width, canvas.height)`. If we didn't reset the transform, that `(0, 0)` point would refer to the center of the canvas. This would cause us to only clear the bottom right quadrant of the canvas!
 
-:::info Canvas Transformations
-
+<AlertInfo title="Canvas Transformations">
 This is not the only way to transform the canvas. We also simplifed the explanation a little. Underneath we are modifying a Matrix ([`DOMMatrix`](https://developer.mozilla.org/en-US/docs/Web/API/DOMMatrix)) object. This object is a 2D matrix (think grid) that represents the current transformation of the canvas. We don't need to dig into the details of this to achieve our goals, but it's useful to be aware of.
 
 See the [docs](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#transformations) for more information.
 
-:::
+</AlertInfo>
 
 ## Rotate the Bird
 

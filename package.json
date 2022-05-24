@@ -30,6 +30,7 @@
     "/public/build"
   ],
   "dependencies": {
+    "@emotion/react": "^11.9.0",
     "@mantine/core": "^4.2.6",
     "@mantine/hooks": "^4.2.6",
     "@mantine/prism": "^4.2.6",
@@ -58,6 +59,7 @@
     "rehype-slug": "^5.0.1",
     "rehype-toc": "^3.0.2",
     "remark-directive": "^2.0.1",
+    "remark-gfm": "^3.0.1",
     "remark-mdx-images": "^1.0.3",
     "tabler-icons-react": "^1.48.0",
     "theme-change": "^2.0.2",

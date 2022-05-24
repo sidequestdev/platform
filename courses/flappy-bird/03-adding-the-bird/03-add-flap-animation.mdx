@@ -3,6 +3,8 @@ sidebar_position: 3
 title: Add Flap Animation
 ---
 
+import { ThemeImage } from "../../../app/components/ThemeImage.tsx";
+
 # Add Flap Animation
 
 To animate the bird we'll need two new components. One to represent the sprite animation details, and another to manage the animation. These will be `SpriteAnimationDetails` and `SpriteAnimation` respectively.
@@ -15,14 +17,17 @@ We've talked about sprite data to represent something like a single complete ima
 
 Here's a diagram to help you visualize this:
 
-<img
-  className="dark-mode"
-  src={require("./img/animation-frame-diagram-dark.png").default}
-/>
-
-<img
-  className="light-mode"
-  src={require("./img/animation-frame-diagram-light.png").default}
+<ThemeImage
+  light={{
+    src: require("./img/animation-frame-diagram-light.png"),
+    width: 869,
+    height: 452,
+  }}
+  dark={{
+    src: require("./img/animation-frame-diagram-dark.png"),
+    width: 869,
+    height: 452,
+  }}
 />
 
 Create a new `SpriteAnimationDetails` component:
@@ -122,7 +127,7 @@ export class SpriteAnimation {
 
 We're assuming that animations are only laid out horizontally, because that's all we need to handle our bird. If you want to support animations that are laid out both vertically and horizontally, you'll need to add some logic to handle that. We also assume the animation will loop.
 
-:::info Infinite Looping Array
+<AlertInfo title="Infinite Looping Array">
 To loop the animation given an array of frames, we're going to use the modulo operator to get the the next appropriate index:
 
 ```typescript
@@ -133,16 +138,16 @@ The table below shows the modulo operator in action:
 
 `frames = [1, 2, 3]`
 
-| index | next = index + 1 % frames.length | looped? |
-| ----- | -------------------------------- | ------- |
-| 0     | 1                                | ❌      |
-| 1     | 2                                | ❌      |
-| 2     | 3                                | ❌      |
-| 3     | 0                                | ✔       |
+| `index` | `next` = index + 1 % frames.length | looped? |
+| ------- | ---------------------------------- | ------- |
+| 0       | 1                                  | ❌      |
+| 1       | 2                                  | ❌      |
+| 2       | 3                                  | ❌      |
+| 3       | 0                                  | ✔       |
 
 The name `next` in the table is better known as the `modulus`.
 
-:::
+</AlertInfo>
 
 ## Adding Animation to the Bird
 

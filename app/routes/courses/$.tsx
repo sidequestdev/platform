@@ -1,4 +1,4 @@
-import { Aside, Box, Grid, Image, MediaQuery, Text } from "@mantine/core";
+import { Aside, Grid, MediaQuery } from "@mantine/core";
 import type { LoaderFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { getMDXComponent } from "mdx-bundler/client";
@@ -34,12 +34,7 @@ export default function Course() {
   const page = useLoaderData<Awaited<ReturnType<typeof getMdxPage>>>();
 
   const Component = React.useMemo(
-    () =>
-      getMDXComponent(page.code, {
-        Box: Box,
-        Image: Image,
-        Text: Text,
-      }),
+    () => getMDXComponent(page.code),
     [page.code]
   );
 

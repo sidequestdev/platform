@@ -1,5 +1,6 @@
-import { Alert, Anchor, Image } from "@mantine/core";
+import { Alert, Anchor, Image, Table } from "@mantine/core";
 import type { ComponentMap } from "mdx-bundler/client";
+import React from "react";
 import { AlertCircle } from "tabler-icons-react";
 import { AlertInfo } from "./Alerts/AlertInfo";
 import { AlertTip } from "./Alerts/AlertTip";
@@ -35,6 +36,25 @@ export const MDXComponents: ComponentMap = {
     );
   },
   p: Paragraph,
+  table: (
+    props: React.DetailedHTMLProps<
+      React.HTMLAttributes<HTMLTableElement>,
+      HTMLTableElement
+    >
+  ) => (
+    <Table
+      {...props}
+      striped
+      ref={null}
+      horizontalSpacing="xl"
+      sx={(theme) => ({
+        backgroundColor:
+          theme.colorScheme === "dark"
+            ? theme.colors.dark[5]
+            : theme.colors.gray[2],
+      })}
+    />
+  ),
   // @ts-ignore
   Alert,
   // @ts-ignore

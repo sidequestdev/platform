@@ -35,8 +35,6 @@ export const Code = (props: CodeProps) => {
     return <InlineCode>{children}</InlineCode>;
   }
 
-  console.log("<Code>", props, props["data-title"]);
-
   invariant(className, "expected className");
   invariant(typeof children === "string", "expected children");
 

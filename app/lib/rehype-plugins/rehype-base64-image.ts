@@ -5,9 +5,8 @@ import path from "node:path";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 
-const rehypeImageSizes: Plugin<[], Root> = () => {
+const rehypeBase64Image: Plugin<[], Root> = () => {
   return (tree, file) => {
-    // XXX Not sure if the `Element` type annotation is even necessary.
     visit(tree, { type: "element", tagName: "img" }, (node: Element) => {
       if (typeof node.properties?.src !== "string") {
         return;
@@ -25,4 +24,4 @@ const rehypeImageSizes: Plugin<[], Root> = () => {
   };
 };
 
-export default rehypeImageSizes;
+export default rehypeBase64Image;

@@ -3,11 +3,12 @@ import { bundleMDX } from "mdx-bundler";
 import fs from "node:fs/promises";
 import path from "node:path";
 import remarkDirective from "remark-directive";
+import remarkGfm from "remark-gfm";
 import invariant from "tiny-invariant";
 import yaml from "yaml";
 import { directoryTree } from "~/lib/directory-tree";
+import rehypeBase64Image from "~/lib/rehype-plugins/rehype-base64-image";
 import rehypeCodeDetails from "~/lib/rehype-plugins/rehype-code-details";
-import rehypeImageSizes from "~/lib/rehype-plugins/rehype-image-sizes";
 import { remarkAlert } from "~/lib/remark-plugins/remark-alert";
 import type { RemarkTableOfContentsItem } from "~/lib/remark-plugins/remark-toc";
 import remarkToc from "~/lib/remark-plugins/remark-toc";
@@ -60,12 +61,10 @@ export async function getMdxPage(slug: string) {
   invariant(course, `Could not find course ${courseId}`);
   invariant(course.type === "directory");
 
-  const [rehypeCodeTitles, rehypeSlug, rehypeAutoLinkHeadings] =
-    await Promise.all([
-      import("rehype-code-titles").then((mod) => mod.default),
-      import("rehype-slug").then((mod) => mod.default),
-      import("rehype-autolink-headings").then((mod) => mod.default),
-    ]);
+  const [rehypeSlug, rehypeAutoLinkHeadings] = await Promise.all([
+    import("rehype-slug").then((mod) => mod.default),
+    import("rehype-autolink-headings").then((mod) => mod.default),
+  ]);
 
   const filepath = path.join(coursesPath, `${slug}.mdx`);
 
@@ -83,6 +82,7 @@ export async function getMdxPage(slug: string) {
       options.remarkPlugins = [
         ...(options.remarkPlugins ?? []),
         // remarkMdxImages,
+        remarkGfm,
         remarkDirective,
         remarkAlert,
         [remarkToc, { exportRef: pageTableOfContents }],
@@ -92,11 +92,13 @@ export async function getMdxPage(slug: string) {
         ...(options.rehypePlugins ?? []),
         // rehypePrism,
         rehypeCodeDetails,
-        rehypeImageSizes,
+        rehypeBase64Image,
         rehypeSlug,
         rehypeAutoLinkHeadings,
         // rehypeCodeTitles,
       ];
+
+      options.jsxImportSource = "@emotion/react";
 
       return options;
     },
