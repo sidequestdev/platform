@@ -1,0 +1,248 @@
+---
+sidebar_position: 3
+title: Add Flap Animation
+---
+
+# Add Flap Animation
+
+To animate the bird we'll need two new components. One to represent the sprite animation details, and another to manage the animation. These will be `SpriteAnimationDetails` and `SpriteAnimation` respectively.
+
+## Sprite Animation Details
+
+`SpriteAnimationDetails` is exactly the same as the `SpriteData` class, with two new properties: `frameWidth` and `frameHeight`. Once we know the width and height of each frame within the animation, we can calculate how many images we have in that animation. We use the prefix `frame` because the images that make up an animation are commonly referred to as frames.
+
+We've talked about sprite data to represent something like a single complete image in the sprite sheet. Like the background. There's no reason the sample itself couldn't be made up of multiple images. This is exactly what we're going to do. We'll extend the sprite data object structure we know to represent a single sample of the sprite sheet, which itself has multiple images denoted by `frameWidth` and `frameHeight`.
+
+Here's a diagram to help you visualize this:
+
+<img
+  className="dark-mode"
+  src={require("./img/animation-frame-diagram-dark.png").default}
+/>
+
+<img
+  className="light-mode"
+  src={require("./img/animation-frame-diagram-light.png").default}
+/>
+
+Create a new `SpriteAnimationDetails` component:
+
+```typescript title="src/components/sprite-animation-details.ts"
+export class SpriteAnimationDetails {
+  constructor(
+    public sourceX: number,
+    public sourceY: number,
+    public width: number,
+    public height: number,
+    public frameWidth: number,
+    public frameHeight: number
+  ) {}
+}
+```
+
+## Sprite Animation
+
+We also need a class to manage the animation. We'll call this `SpriteAnimation`.
+
+Here's what this class will need to know at a high level:
+
+- The duration (in seconds) of the entire animation
+- The sprite animation details to determine how many frames there are, and what the duration of each frame will be
+- To track the progress of the current frame, so we know when to move to the next frame
+- The sprite data of the current frame we're on so we can render it
+
+:::note
+We avoid the more obvious class name `Animation` because it's a class in the DOM already.
+:::
+
+```typescript title="src/components/sprite-animation.ts"
+import { SpriteAnimationDetails } from "#/components/sprite-animation-details";
+import { SpriteData } from "#/components/sprite-data";
+
+export class SpriteAnimation {
+  /**
+   * The elapsed time of the current frame
+   */
+  public elapsedFrameTime = 0;
+
+  /**
+   * The frame rate of the animation in seconds.
+   */
+  public frameRate = 0;
+
+  /**
+   * Sprite data for each frame of the animation
+   */
+  public frames: SpriteData[] = [];
+
+  public currentFrameIndex = 0;
+
+  constructor(
+    public animationDetails: SpriteAnimationDetails,
+    public durationInSeconds: number
+  ) {
+    const horizontalFrames =
+      animationDetails.width / animationDetails.frameWidth;
+
+    for (let i = 0; i < horizontalFrames; i++) {
+      const sourceX =
+        animationDetails.sourceX + i * animationDetails.frameWidth;
+
+      this.frames.push(
+        new SpriteData(
+          sourceX,
+          animationDetails.sourceY,
+          animationDetails.frameWidth,
+          animationDetails.frameHeight
+        )
+      );
+    }
+
+    // Determine the frame rate based on the duration of the animation
+    // and the number of frames.
+    this.frameRate = this.durationInSeconds / this.frames.length;
+  }
+
+  public update(delta: number) {
+    this.elapsedFrameTime += delta;
+
+    if (this.elapsedFrameTime >= this.frameRate) {
+      this.elapsedFrameTime = 0;
+
+      this.currentFrameIndex =
+        (this.currentFrameIndex + 1) % this.frames.length;
+    }
+  }
+
+  public getCurrentFrame() {
+    return this.frames[this.currentFrameIndex];
+  }
+}
+```
+
+We're assuming that animations are only laid out horizontally, because that's all we need to handle our bird. If you want to support animations that are laid out both vertically and horizontally, you'll need to add some logic to handle that. We also assume the animation will loop.
+
+:::info Infinite Looping Array
+To loop the animation given an array of frames, we're going to use the modulo operator to get the the next appropriate index:
+
+```typescript
+currentFrameIndex = (currentFrameIndex + 1) % frames.length;
+```
+
+The table below shows the modulo operator in action:
+
+`frames = [1, 2, 3]`
+
+| index | next = index + 1 % frames.length | looped? |
+| ----- | -------------------------------- | ------- |
+| 0     | 1                                | ❌      |
+| 1     | 2                                | ❌      |
+| 2     | 3                                | ❌      |
+| 3     | 0                                | ✔       |
+
+The name `next` in the table is better known as the `modulus`.
+
+:::
+
+## Adding Animation to the Bird
+
+We now need to:
+
+- Update the `Bird` constructor to take a `SpriteAnimation` instance
+- Add an `update()` method to the bird to update the animation
+- Draw the current animations frame in the `draw()` method
+- Start calling the `update()` method in the game loop
+
+```typescript title="src/entities/bird.ts" +{1,9,16,22,25-27,30,34-37,40-41}
+import { SpriteAnimation } from "#/components/sprite-animation";
+import { SpriteData } from "#/components/sprite-data";
+import { Vector2d } from "#/components/vector2d";
+
+type BirdOptions = {
+  spriteSheet: HTMLImageElement;
+  spriteData: SpriteData;
+  position: Vector2d;
+  flapAnimation: SpriteAnimation;
+};
+
+export class Bird {
+  spriteSheet: HTMLImageElement;
+  spriteData: SpriteData;
+  position: Vector2d;
+  flapAnimation: SpriteAnimation;
+
+  constructor(options: BirdOptions) {
+    this.spriteSheet = options.spriteSheet;
+    this.spriteData = options.spriteData;
+    this.position = options.position;
+    this.flapAnimation = options.flapAnimation;
+  }
+
+  public update(delta: number) {
+    this.flapAnimation.update(delta);
+  }
+
+  public draw(context: CanvasRenderingContext2D) {
+    const currentFrame = this.flapAnimation.getCurrentFrame();
+
+    context.drawImage(
+      this.spriteSheet,
+      currentFrame.sourceX,
+      currentFrame.sourceY,
+      currentFrame.width,
+      currentFrame.height,
+      this.position.x,
+      this.position.y,
+      currentFrame.width,
+      currentFrame.height
+    );
+  }
+}
+```
+
+Now update the instance created in `main.ts` to use the new `SpriteAnimation` class:
+
+```typescript title="src/main.ts" {10-20}
+const bird = new Bird({
+  spriteSheet,
+  position: new Vector2d(config.gameWidth / 4, config.gameHeight / 2),
+  spriteData: new SpriteData(
+    spriteMap.bird.idle.sourceX,
+    spriteMap.bird.idle.sourceY,
+    spriteMap.bird.idle.width,
+    spriteMap.bird.idle.height
+  ),
+  flapAnimation: new SpriteAnimation(
+    new SpriteAnimationDetails(
+      spriteMap.bird.animations.flap.sourceX,
+      spriteMap.bird.animations.flap.sourceY,
+      spriteMap.bird.animations.flap.width,
+      spriteMap.bird.animations.flap.height,
+      spriteMap.bird.animations.flap.frameWidth,
+      spriteMap.bird.animations.flap.frameHeight
+    ),
+    0.3
+  ),
+});
+```
+
+We're leveraging the preconfigured `spriteMap` here again to pull the frame data we need from the sprite sheet. We also set our animation duration to `0.3` seconds.
+
+Then add `bird.update()` within `frame()` in `main.ts`:
+
+```typescript title="src/main.ts" {7}
+const frame = (hrt: DOMHighResTimeStamp) => {
+  const dt = Math.min(1000, hrt - last) / 1000;
+
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  ground.update(dt);
+  bird.update(dt);
+
+  // ...
+};
+```
+
+Now we're animating!
+
+Next, we'll get the bird to flap upward on click.

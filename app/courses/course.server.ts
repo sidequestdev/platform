@@ -50,7 +50,7 @@ export async function getMdxPage(slug: string) {
 
   const courses = await directoryTree(coursesPath, {
     attributes: ["size", "extension", "type"],
-    exclude: /img/i,
+    exclude: /img|demos/i,
     extensions: /\.mdx?$/,
   });
 

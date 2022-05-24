@@ -23,10 +23,6 @@ const rehypeCodeDetails: Plugin<[], Root> = () => {
         return;
       }
 
-      console.log("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
-      console.dir(node, { depth: null, colors: true });
-      console.log("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
-
       if (isElementWithMetadata(node)) {
         const title = node.data.meta.match(titleRegExp)?.groups?.title;
         if (title != null) {

@@ -1,0 +1,78 @@
+---
+sidebar_position: 5
+title: Bird State
+---
+
+# Bird State
+
+It would be nice for the game to start with the bird idling in place, until we click to trigger the flap. We'll support this by tracking the current state of the bird. The bird will be in one of three states:
+
+- `Idle` - The bird is not currently moving, just animating in place
+- `Flying` - The bird is being affected by gravity and will flap on click
+- `Dead` - The bird has collided and will stop
+  - We'll tackle this in a coming chapter when we talk about collision
+
+Let's create an enum and set the bird's initial state to `Idle`:
+
+```typescript title="src/entities/bird.ts" {1-5,8}
+export enum BirdState {
+  Idle,
+  Flying,
+  Dead,
+}
+
+export class Bird {
+  state = BirdState.Idle;
+
+  // ...
+}
+```
+
+Next, let's refactor the `flap()` method to reflect our states. If you recall, the click handler calls flap, so this will set the bird in motion.
+
+```typescript +{2-15} title="src/entities/bird.ts"
+public flap() {
+  switch (this.state) {
+    case BirdState.Idle: {
+      this.state = BirdState.Flying;
+      this.velocity.y = -this.thrust;
+
+      break;
+    }
+
+    case BirdState.Flying: {
+      this.velocity.y = -this.thrust;
+
+      break;
+    }
+  }
+}
+```
+
+Nothing crazy here. We're checking the current state of the bird and setting the velocity to the appropriate value. We do apply thrust on the transition from `Idle` to `Flying` as well. It just felt good to have the bird start to fly upward right away, rather than needing the extra click.
+
+Then let's replace the `update()` method to use the new states.
+
+```typescript +{2-16} title="src/entities/bird.ts"
+public update(delta: number) {
+  switch (this.state) {
+    case BirdState.Idle: {
+      this.flapAnimation.update(delta);
+
+      break;
+    }
+
+    case BirdState.Flying: {
+      this.flapAnimation.update(delta);
+      this.velocity.y += this.gravity * delta;
+      this.position.y += this.velocity.y * delta;
+
+      break;
+    }
+  }
+}
+```
+
+Now when the game starts, the bird will be pleasantly idling. When we click, our flap logic will take over. Feeling much better already.
+
+Next we'll rotate the bird based on velocity. It's looking pretty rigid at the moment.

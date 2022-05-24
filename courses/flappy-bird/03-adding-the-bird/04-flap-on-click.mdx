@@ -1,0 +1,137 @@
+---
+sidebar_position: 4
+title: Flap on Click
+---
+
+# Flap On Click
+
+## The Goal
+
+We'll want to trigger some logic that causes the bird to thrust upward when the mouse is clicked on the canvas.
+
+Here's what we'll cover to accomplish this:
+
+- Add a `flap()` method to `Bird` class to apply upward thrust
+- Create the canvas click listener to trigger the bird flap logic
+- Determine gravity and thrust based on jump height and time to jump apex (peak of the jump)
+- Set rotation of the bird via a `setRotation()` method
+  - Add call to `update()`
+
+## Determining Gravity and Thrust
+
+To determine the rate at which the bird will rise (on click) and fall due to gravity, we'll need to know the height of the jump and the time it takes to reach the apex.
+
+We're going to use a jump height of `48` pixels and a time to reach the apex of `0.35` seconds. Using these values, we can calculate the gravity and thrust. These values were determined by good old play testing until we found something we liked.
+
+Here are the formulas we'll use:
+
+- `gravity = (2 * jumpHeight) / timeToJumpApex ** 2`
+- `thrust = gravity * timeToJumpApex`
+
+:::info Exponentiation Operator
+
+If you don't recognize the exponentiation operator: `**`, it's a shorthand for `Math.pow(base, exponent)`.
+
+:::
+
+The important result of these two formulas is a gravity value that is larger than the thrust value. This means that the bird will fall faster than it will rise. Applying thrust will let the bird temporarily fight against gravity, before it's inevitably pulled back down. The effect is a pleasant arc of motion.
+
+We're also going to track the velocity of the bird moving up and down in a new `velocity` property. We'll only be effecting the `y` property, but we'll use a `Vector2d` nonetheless.
+
+Let's modify the `Bird` class to track this data:
+
+```typescript +{6,8-26} title="src/entities/bird.ts"
+export class Bird {
+  spriteSheet: HTMLImageElement;
+  spriteData: SpriteData;
+  position: Vector2d;
+  flapAnimation: SpriteAnimation;
+  velocity = new Vector2d();
+
+  /**
+   * Height in pixels
+   */
+  jumpHeight = 48;
+
+  /**
+   * Time in seconds
+   */
+  timeToJumpApex = 0.35;
+
+  /**
+   * Calculated using the formula: `gravity = (2 * jumpHeight) / timeToJumpApex ** 2`
+   */
+  gravity = (2 * this.jumpHeight) / this.timeToJumpApex ** 2;
+
+  /**
+   * Calculated using the formula: `thrust = gravity * timeToJumpApex`
+   */
+  thrust = this.gravity * this.timeToJumpApex;
+}
+```
+
+Right now this does nothing. Let's start by causing the bird to fall when the game starts.
+
+## Apply Gravity
+
+In the `update()` method, we'll need to apply gravity to the bird. This will be done in two steps:
+
+- First apply gravity to the velocity
+- Then apply the velocity to the position
+
+```typescript +{3-4} title="src/entities/bird.ts"
+export class Bird {
+  public update(delta: number) {
+    this.velocity.y += this.gravity * delta;
+    this.position.y += this.velocity.y * delta;
+
+    this.flapAnimation.update(delta);
+  }
+}
+```
+
+<AlertInfo title="Gravity Delta Time">
+  Notice that we apply delta to gravity before our usual `velocity * delta`
+  routine. This is because when we calculated gravity it wasn't accounting for
+  the delta time. So we'll just apply it each frame. If we didn't do this, we'd
+  be adding a much larger value to the velocity each frame causing the bird to
+  fall too fast.
+</AlertInfo>
+
+At this point the bird will fall off the screen due to gravity.
+
+## Applying Thrust
+
+Now we want the bird to thrust up quickly when the user clicks. We'll need to apply the thrust to the velocity on click. We'll call a `flap()` method to handle this logic. Currently, thrust is a positive value, and on the canvas positive means down. We'll need to flip the sign of the thrust to cause the bird to move upward.
+
+```typescript +{4-6} title="src/entities/bird.ts"
+export class Bird {
+  // ...
+
+  public flap() {
+    this.velocity.y = -this.thrust;
+  }
+
+  public update(delta: number) {
+    this.velocity.y += this.gravity * delta;
+    this.position.y += this.velocity.y * delta;
+
+    this.flapAnimation.update(delta);
+  }
+}
+```
+
+Next, let's add the event listener and trigger the flap logic.
+
+## Adding the Click Listener
+
+```typescript +{3-6} title="src/main.ts"
+context.imageSmoothingEnabled = false;
+
+// Add event listener to trigger bird flap
+canvas.addEventListener("click", () => {
+  bird.flap();
+});
+```
+
+Now when you click on the canvas, the bird will thrust upward! It's feeling good, but it's somewhat annoying that the moment the game starts the bird is falling like a sack of potatoes. We'll tackle that next.

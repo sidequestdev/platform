@@ -1,0 +1,71 @@
+---
+sidebar_position: 2
+title: Drawing the Bird
+---
+
+# Drawing the Bird
+
+Let's start by drawing the bird. The good news is we've seen all this code before when we wrote in the `Ground` class. Let's create a new class, a new instance in `main.ts`, and add it to the game loop.
+
+```typescript title="src/entities/bird.ts"
+import { SpriteData } from "#/components/sprite-data";
+import { Vector2d } from "#/components/vector2d";
+
+type BirdOptions = {
+  spriteSheet: HTMLImageElement;
+  spriteData: SpriteData;
+  position: Vector2d;
+};
+
+export class Bird {
+  spriteSheet: HTMLImageElement;
+  spriteData: SpriteData;
+  position: Vector2d;
+
+  constructor(options: BirdOptions) {
+    this.spriteSheet = options.spriteSheet;
+    this.spriteData = options.spriteData;
+    this.position = options.position;
+  }
+
+  public draw(context: CanvasRenderingContext2D) {
+    context.drawImage(
+      this.spriteSheet,
+      this.spriteData.sourceX,
+      this.spriteData.sourceY,
+      this.spriteData.width,
+      this.spriteData.height,
+      this.position.x,
+      this.position.y,
+      this.spriteData.width,
+      this.spriteData.height
+    );
+  }
+}
+```
+
+Update `main.ts` to create a bird instance:
+
+```typescript title="src/main.ts"
+const bird = new Bird({
+  spriteSheet,
+  position: new Vector2d(config.gameWidth / 4, config.gameHeight / 2),
+  spriteData: new SpriteData(
+    spriteMap.bird.idle.sourceX,
+    spriteMap.bird.idle.sourceY,
+    spriteMap.bird.idle.width,
+    spriteMap.bird.idle.height
+  ),
+});
+```
+
+Then add the `bird.draw()` call beneath `ground.draw()`:
+
+```typescript +{2} title="src/main.ts"
+ground.draw(context);
+bird.draw(context);
+```
+
+We draw the bird after the ground so that it appears above the ground.
+
+The bird's looking a little boring, we'll animate it next.
