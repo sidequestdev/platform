@@ -21,12 +21,10 @@ export const ThemeImage: React.FC<ThemeImageProps> = (
   props: ThemeImageProps
 ) => {
   // TODO Wrap this into a custom hook?
-  // const [colorScheme] = useLocalStorage<ColorScheme>({
-  //   key: "color-scheme",
-  //   defaultValue: "light",
-  // });
-
-  const colorScheme = "dark";
+  const [colorScheme] = useLocalStorage<ColorScheme>({
+    key: "color-scheme",
+    getInitialValueInEffect: true,
+  });
 
   return colorScheme === "dark" ? (
     <Image src={props.dark.src} />

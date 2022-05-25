@@ -8,6 +8,7 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import { MantineTheme } from "./components/MantineTheme";
+import { ThemeProvider } from "./utils/theme-provider";
 
 export const links: LinksFunction = () => {
   return [];
@@ -27,9 +28,11 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <MantineTheme>
-          <Outlet />
-        </MantineTheme>
+        <ThemeProvider>
+          <MantineTheme>
+            <Outlet />
+          </MantineTheme>
+        </ThemeProvider>
 
         <ScrollRestoration />
         <Scripts />
