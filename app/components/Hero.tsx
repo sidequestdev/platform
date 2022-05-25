@@ -5,7 +5,7 @@ import {
   Group,
   Image,
   Text,
-  useMantineTheme,
+  useMantineColorScheme,
 } from "@mantine/core";
 import React from "react";
 import lightLogo from "../images/LogoBlack.png";
@@ -98,13 +98,13 @@ const useStyles = createStyles((theme) => ({
 
 export function Hero() {
   const { classes } = useStyles();
-  const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
 
   return (
     <div className={classes.wrapper}>
       <Container size={700} className={classes.inner}>
         <Image
-          src={theme.colorScheme === "dark" ? darkLogo : lightLogo}
+          src={colorScheme === "dark" ? darkLogo : lightLogo}
           alt="Sidequest logo"
           mb={64}
         />

@@ -1,4 +1,4 @@
-import { Image, useMantineColorScheme } from "@mantine/core";
+import { Image, ImageProps, useMantineColorScheme } from "@mantine/core";
 
 type ThemeImageProps = {
   alt: string;
@@ -20,17 +20,17 @@ export const ThemeImage: React.FC<ThemeImageProps> = (
 ) => {
   const { colorScheme } = useMantineColorScheme();
 
-  const shared = {
+  const shared: ImageProps = {
     alt: props.alt,
-    width:
-      typeof props.width === "string" ? parseInt(props.width) : props.width,
     height:
       typeof props.height === "string" ? parseInt(props.height) : props.height,
+    fit: "contain",
+    mb: 24,
   };
 
   return colorScheme === "dark" ? (
-    <Image src={props.dark.src} fit="contain" {...shared} />
+    <Image src={props.dark.src} {...shared} />
   ) : (
-    <Image src={props.light.src} fit="contain" {...shared} />
+    <Image src={props.light.src} {...shared} />
   );
 };

@@ -23,9 +23,6 @@ To create the scrolling ground effect, we're going to sample the same image twic
   }}
 />
 
-<br />
-<br />
-
 We're going to track a scrolling position along the x-axis: `scrollPositionX`. It will constantly be moving to the left by whatever our `scrollSpeed` is. The difference between this position and 0 will give us a value to leverage for sampling and drawing two portions of the same image. Once `scrollPositionX` reaches a position less (cause we're moving left - so negative) than the ground width, we reset to 0 and the effect repeats.
 
 ## Updating the Ground Class

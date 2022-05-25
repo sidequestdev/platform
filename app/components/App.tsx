@@ -7,7 +7,7 @@ import { Hero } from "./Hero";
 
 const links = [
   {
-    link: "/courses",
+    link: "#courses",
     label: "Courses",
   },
   {

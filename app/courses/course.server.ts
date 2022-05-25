@@ -8,7 +8,6 @@ import { remarkMdxImages } from "remark-mdx-images";
 import invariant from "tiny-invariant";
 import yaml from "yaml";
 import { directoryTree } from "~/lib/directory-tree";
-import rehypeBase64Image from "~/lib/rehype-plugins/rehype-base64-image";
 import rehypeCodeDetails from "~/lib/rehype-plugins/rehype-code-details";
 import { remarkAlert } from "~/lib/remark-plugins/remark-alert";
 import type { RemarkTableOfContentsItem } from "~/lib/remark-plugins/remark-toc";
@@ -98,15 +97,10 @@ export async function getMdxPage(slug: string) {
 
       options.rehypePlugins = [
         ...(options.rehypePlugins ?? []),
-        // rehypePrism,
         rehypeCodeDetails,
-        // rehypeBase64Image,
         rehypeSlug,
         rehypeAutoLinkHeadings,
-        // rehypeCodeTitles,
       ];
-
-      // options.jsxImportSource = "@emotion/react";
 
       return options;
     },

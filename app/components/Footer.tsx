@@ -120,7 +120,7 @@ interface FooterProps {
 }
 
 export function Footer({ data }: FooterProps) {
-  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const { colorScheme } = useMantineColorScheme();
 
   const { classes } = useStyles();
   const groups = data.map((group) => {

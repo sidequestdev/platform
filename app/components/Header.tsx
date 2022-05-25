@@ -126,7 +126,6 @@ export function HeaderResponsive({ fluid, links }: HeaderResponsiveProps) {
       href={link.link}
       className={classes.link}
       onClick={(event) => {
-        event.preventDefault();
         setActive(link.link);
         toggleOpened(false);
       }}

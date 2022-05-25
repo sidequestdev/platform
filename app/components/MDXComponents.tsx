@@ -1,4 +1,4 @@
-import { Alert, Anchor, Image, Table } from "@mantine/core";
+import { Alert, Anchor, Table } from "@mantine/core";
 import type { ComponentMap } from "mdx-bundler/client";
 import React from "react";
 import { AlertCircle } from "tabler-icons-react";
@@ -18,24 +18,24 @@ export const MDXComponents: ComponentMap = {
   ) => <Anchor>{props.children}</Anchor>,
   code: Code,
   div: Directive,
-  img: (
-    props: React.DetailedHTMLProps<
-      React.ImgHTMLAttributes<HTMLImageElement>,
-      HTMLImageElement
-    >
-  ) => {
-    return (
-      <Image
-        {...props}
-        ref={null}
-        fit="contain"
-        height={parseInt(`${props.height}`)}
-        style={{
-          margin: "24px 0",
-        }}
-      />
-    );
-  },
+  // img: (
+  //   props: React.DetailedHTMLProps<
+  //     React.ImgHTMLAttributes<HTMLImageElement>,
+  //     HTMLImageElement
+  //   >
+  // ) => {
+  //   return (
+  //     <Image
+  //       {...props}
+  //       ref={null}
+  //       fit="contain"
+  //       height={parseInt(`${props.height}`)}
+  //       style={{
+  //         margin: "24px 0",
+  //       }}
+  //     />
+  //   );
+  // },
   p: Paragraph,
   table: (
     props: React.DetailedHTMLProps<

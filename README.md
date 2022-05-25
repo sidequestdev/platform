@@ -173,7 +173,7 @@ We use [Prettier](https://prettier.io/) for auto-formatting in this project. It'
 
 ## MDX
 
-### Callouts
+### Call Outs
 
 You can use two styles to create callouts, a directive:
 
@@ -190,4 +190,35 @@ and a React component:
   You can learn more about npx by visiting the
   [docs](https://docs.npmjs.com/cli/v8/commands/npx).
 </AlertInfo>
+```
+
+### Images
+
+> Currently you must have your images in a _public_ location such as `public/images`
+
+There are currently two ways to include images in your MDX files.
+
+- Use the `![alt text](image.png)` syntax.
+- Use the `<img src="image.png" ...etc />` tag.
+
+Neither of these are responsive by default.
+
+### Theme Image
+
+> Currently you must have your images in a _public_ location such as `public/images`
+
+If you'd like to have responsive images that also respect light/dark mode, you can use the `<ThemeImage />` component. The `height` attribute _must_ be used for the component to be responsive.
+
+```tsx
+<ThemeImage
+  alt="Animation frame diagram"
+  width="869"
+  height="452"
+  light={{
+    src: "/images/courses/flappy-bird/03-adding-the-bird/animation-frame-diagram-light.png",
+  }}
+  dark={{
+    src: "/images/courses/flappy-bird/03-adding-the-bird/animation-frame-diagram-dark.png",
+  }}
+/>
 ```

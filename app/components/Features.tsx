@@ -11,7 +11,7 @@ import React from "react";
 import type { Icon as TablerIcon } from "tabler-icons-react";
 import { DeviceGamepad, Tools, Users } from "tabler-icons-react";
 
-const MOCKDATA = [
+const MOCK_DATA = [
   {
     icon: DeviceGamepad,
     title: "Feel good",
@@ -91,7 +91,7 @@ interface FeaturesComponentProps {
 export function Features({
   title,
   description,
-  data = MOCKDATA,
+  data = MOCK_DATA,
 }: FeaturesComponentProps) {
   const { classes } = useStyles();
   const theme = useMantineTheme();
