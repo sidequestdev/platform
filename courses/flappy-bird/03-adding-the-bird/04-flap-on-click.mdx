@@ -28,11 +28,10 @@ Here are the formulas we'll use:
 - `gravity = (2 * jumpHeight) / timeToJumpApex ** 2`
 - `thrust = gravity * timeToJumpApex`
 
-:::info Exponentiation Operator
-
-If you don't recognize the exponentiation operator: `**`, it's a shorthand for `Math.pow(base, exponent)`.
-
-:::
+<AlertInfo title="Exponentiation Operator">
+  If you don't recognize the exponentiation operator: `**`, it's a shorthand for
+  `Math.pow(base, exponent)`.
+</AlertInfo>
 
 The important result of these two formulas is a gravity value that is larger than the thrust value. This means that the bird will fall faster than it will rise. Applying thrust will let the bird temporarily fight against gravity, before it's inevitably pulled back down. The effect is a pleasant arc of motion.
 
