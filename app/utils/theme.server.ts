@@ -3,8 +3,6 @@ import invariant from "tiny-invariant";
 import type { Theme } from "./theme-provider";
 import { isTheme } from "./theme-provider";
 
-process.env.SESSION_SECRET = "ae5f73de4cb82b384e818d15e93cb95d";
-
 invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set");
 
 const THEME_KEY = "theme";
