@@ -13,6 +13,7 @@ const links = [
   {
     link: "/blog",
     label: "Blog",
+    hidden: true,
   },
 ];
 
@@ -85,7 +86,7 @@ const footerData = [
 export default function App() {
   return (
     <>
-      <HeaderResponsive links={links} />
+      <HeaderResponsive links={links.filter((link) => link.hidden !== true)} />
       <Hero />
       <Features
         title="Integrate effortlessly with any technology stack"

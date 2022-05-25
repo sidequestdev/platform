@@ -15,7 +15,9 @@ export const MDXComponents: ComponentMap = {
       React.HTMLAttributes<HTMLAnchorElement>,
       HTMLAnchorElement
     >
-  ) => <Anchor>{props.children}</Anchor>,
+  ) => {
+    return <Anchor {...props} target="_blank" ref={null} />;
+  },
   code: Code,
   div: Directive,
   // img: (

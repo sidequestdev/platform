@@ -10,13 +10,7 @@ import { getMdxPage } from "~/courses/course.server";
 
 export const loader: LoaderFunction = async ({ params }) => {
   try {
-    // invariant(params.courseId, "expected params.courseId");
     invariant(params["*"], "expected params.*");
-
-    console.log({ coursesRoute: params["*"] });
-
-    // const courseId = params.courseId;
-    // const slug = `${courseId}/${params["*"]}`;
 
     const page = await getMdxPage(params["*"]);
 
