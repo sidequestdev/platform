@@ -1,16 +1,15 @@
 import type { ColorScheme } from "@mantine/core";
 import { ColorSchemeProvider, MantineProvider } from "@mantine/core";
-import { useLocalStorage } from "@mantine/hooks";
+import { useState } from "react";
+import { Theme, useTheme } from "~/utils/theme-provider";
 
 export function MantineTheme({ children }: { children: React.ReactNode }) {
-  const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
-    key: "color-scheme",
-    defaultValue: "dark",
-    getInitialValueInEffect: true,
-  });
-  // const [colorScheme, setColorScheme] = useState<ColorScheme>("dark");
-  const toggleColorScheme = (value?: ColorScheme) =>
-    setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
+  const [theme, setTheme] = useTheme();
+  const [colorScheme, setColorScheme] = useState<ColorScheme>(theme || "dark");
+  const toggleColorScheme = (value?: ColorScheme) => {
+    setTheme(value || (theme === Theme.DARK ? Theme.LIGHT : Theme.DARK));
+    setColorScheme(value || (theme === Theme.DARK ? Theme.LIGHT : Theme.DARK));
+  };
 
   return (
     <ColorSchemeProvider
@@ -18,7 +17,7 @@ export function MantineTheme({ children }: { children: React.ReactNode }) {
       toggleColorScheme={toggleColorScheme}
     >
       <MantineProvider
-        theme={{ colorScheme }}
+        theme={{ colorScheme: theme ?? "dark" }}
         withNormalizeCSS
         withGlobalStyles
       >

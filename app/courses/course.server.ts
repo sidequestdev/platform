@@ -100,7 +100,7 @@ export async function getMdxPage(slug: string) {
         ...(options.rehypePlugins ?? []),
         // rehypePrism,
         rehypeCodeDetails,
-        rehypeBase64Image,
+        // rehypeBase64Image,
         rehypeSlug,
         rehypeAutoLinkHeadings,
         // rehypeCodeTitles,

@@ -11,6 +11,7 @@ import {
 import { useBooleanToggle } from "@mantine/hooks";
 import React, { useState } from "react";
 import { MoonStars, Sun } from "tabler-icons-react";
+import { Theme, useTheme } from "~/utils/theme-provider";
 import { Logo } from "./Logo";
 
 const HEADER_HEIGHT = 56;
@@ -114,6 +115,7 @@ interface HeaderResponsiveProps {
 
 export function HeaderResponsive({ fluid, links }: HeaderResponsiveProps) {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const [theme, setTheme] = useTheme();
   const [opened, toggleOpened] = useBooleanToggle(false);
   const [active, setActive] = useState("");
   const { classes } = useStyles({ fluid })();
@@ -162,12 +164,17 @@ export function HeaderResponsive({ fluid, links }: HeaderResponsiveProps) {
           <Group ml={50} spacing={5} className={classes.links}>
             {items}
           </Group>
-          <ActionIcon onClick={() => toggleColorScheme()} size={40}>
-            {colorScheme === "dark" ? (
-              <Sun size={24} />
-            ) : (
-              <MoonStars size={24} />
-            )}
+          <ActionIcon
+            onClick={() => {
+              setTheme((current) =>
+                current === Theme.DARK ? Theme.LIGHT : Theme.DARK
+              );
+
+              toggleColorScheme();
+            }}
+            size={40}
+          >
+            {theme === "dark" ? <Sun size={24} /> : <MoonStars size={24} />}
           </ActionIcon>
         </Group>
       </div>

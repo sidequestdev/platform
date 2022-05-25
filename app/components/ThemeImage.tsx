@@ -1,16 +1,14 @@
-import { ColorScheme, Image } from "@mantine/core";
-import { useLocalStorage } from "@mantine/hooks";
+import { Image, useMantineColorScheme } from "@mantine/core";
 
 type ThemeImageProps = {
+  alt: string;
+  width: number | string;
+  height: number | string;
   light: {
     src: string;
-    width: number;
-    height: number;
   };
   dark: {
     src: string;
-    width: number;
-    height: number;
   };
 };
 
@@ -20,15 +18,19 @@ type ThemeImageProps = {
 export const ThemeImage: React.FC<ThemeImageProps> = (
   props: ThemeImageProps
 ) => {
-  // TODO Wrap this into a custom hook?
-  const [colorScheme] = useLocalStorage<ColorScheme>({
-    key: "color-scheme",
-    getInitialValueInEffect: true,
-  });
+  const { colorScheme } = useMantineColorScheme();
+
+  const shared = {
+    alt: props.alt,
+    width:
+      typeof props.width === "string" ? parseInt(props.width) : props.width,
+    height:
+      typeof props.height === "string" ? parseInt(props.height) : props.height,
+  };
 
   return colorScheme === "dark" ? (
-    <Image src={props.dark.src} />
+    <Image src={props.dark.src} fit="contain" {...shared} />
   ) : (
-    <Image src={props.light.src} />
+    <Image src={props.light.src} fit="contain" {...shared} />
   );
 };

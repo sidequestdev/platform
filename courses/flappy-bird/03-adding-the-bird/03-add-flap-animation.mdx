@@ -16,15 +16,14 @@ We've talked about sprite data to represent something like a single complete ima
 Here's a diagram to help you visualize this:
 
 <ThemeImage
+  alt="Animation frame diagram"
+  width="869"
+  height="452"
   light={{
     src: "/images/courses/flappy-bird/03-adding-the-bird/animation-frame-diagram-light.png",
-    width: 869,
-    height: 452,
   }}
   dark={{
     src: "/images/courses/flappy-bird/03-adding-the-bird/animation-frame-diagram-dark.png",
-    width: 869,
-    height: 452,
   }}
 />
 
@@ -54,9 +53,10 @@ Here's what this class will need to know at a high level:
 - To track the progress of the current frame, so we know when to move to the next frame
 - The sprite data of the current frame we're on so we can render it
 
-:::note
-We avoid the more obvious class name `Animation` because it's a class in the DOM already.
-:::
+<AlertInfo>
+  We avoid the more obvious class name `Animation` because it's a class in the
+  DOM already.
+</AlertInfo>
 
 ```typescript title="src/components/sprite-animation.ts"
 import { SpriteAnimationDetails } from "#/components/sprite-animation-details";

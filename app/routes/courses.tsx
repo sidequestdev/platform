@@ -24,6 +24,7 @@ import { LinksGroup } from "~/components/NavbarLinksGroup/NavbarLinksGroup";
 import { UserButton } from "~/components/UserButton/UserButton";
 import type { ToCItem } from "~/courses/course.server";
 import { getMdxPage } from "~/courses/course.server";
+import { Theme, useTheme } from "~/utils/theme-provider";
 
 export const loader: LoaderFunction = async ({ params }) => {
   try {
@@ -104,11 +105,22 @@ interface CourseShellProps {
 }
 
 export function CourseShell({ page }: CourseShellProps) {
-  const theme = useMantineTheme();
+  const mantineTheme = useMantineTheme();
   const { classes } = useStyles();
-  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const { toggleColorScheme } = useMantineColorScheme();
+  const [theme, setTheme] = useTheme();
   const [opened, setOpened] = useState(false);
   const [selectedLink, setSelectedLink] = useState(page.slug);
+
+  const toggleTheme = () => {
+    setTheme((prevTheme) => {
+      const nextTheme = prevTheme === Theme.LIGHT ? Theme.DARK : Theme.LIGHT;
+
+      toggleColorScheme(nextTheme);
+
+      return nextTheme;
+    });
+  };
 
   invariant(
     "links" in page.tableOfContents,
@@ -142,9 +154,9 @@ export function CourseShell({ page }: CourseShellProps) {
       styles={{
         main: {
           background:
-            theme.colorScheme === "dark"
-              ? theme.colors.dark[8]
-              : theme.colors.gray[0],
+            theme === Theme.DARK
+              ? mantineTheme.colors.dark[8]
+              : mantineTheme.colors.gray[0],
         },
       }}
       navbarOffsetBreakpoint="sm"
@@ -190,16 +202,16 @@ export function CourseShell({ page }: CourseShellProps) {
                 opened={opened}
                 onClick={() => setOpened((o) => !o)}
                 size="sm"
-                color={theme.colors.gray[6]}
+                color={mantineTheme.colors.gray[6]}
                 mr="xl"
               />
             </MediaQuery>
 
-            <Logo colorScheme={theme.colorScheme} />
+            <Logo colorScheme={mantineTheme.colorScheme} />
 
             <Group>
-              <ActionIcon onClick={() => toggleColorScheme()} size={40}>
-                {colorScheme === "dark" ? (
+              <ActionIcon onClick={toggleTheme} size={40}>
+                {theme === Theme.DARK ? (
                   <Sun size={24} />
                 ) : (
                   <MoonStars size={24} />

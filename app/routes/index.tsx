@@ -5,8 +5,6 @@ import App from "~/components/App";
 import { getCourses } from "~/courses/course.server";
 
 export const loader: LoaderFunction = async () => {
-  console.log(await getCourses());
-
   return json({ courses: await getCourses() });
 };
 
