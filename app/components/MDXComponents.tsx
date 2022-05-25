@@ -7,6 +7,7 @@ import { AlertTip } from "./Alerts/AlertTip";
 import { Code } from "./Code";
 import { Directive } from "./Directive";
 import { Paragraph } from "./Paragraph";
+import { ThemeImage } from "./ThemeImage";
 
 export const MDXComponents: ComponentMap = {
   a: (
@@ -65,4 +66,7 @@ export const MDXComponents: ComponentMap = {
   AlertInfo,
   // @ts-ignore
   AlertTip,
+
+  // @ts-ignore
+  ThemeImage,
 };

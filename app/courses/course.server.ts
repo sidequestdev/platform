@@ -4,6 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import remarkDirective from "remark-directive";
 import remarkGfm from "remark-gfm";
+import { remarkMdxImages } from "remark-mdx-images";
 import invariant from "tiny-invariant";
 import yaml from "yaml";
 import { directoryTree } from "~/lib/directory-tree";
@@ -67,8 +68,16 @@ export async function getMdxPage(slug: string) {
   ]);
 
   const filepath = path.join(coursesPath, `${slug}.mdx`);
+  const cwd = path.resolve(filepath, "..");
 
   const pageTableOfContents: Array<RemarkTableOfContentsItem> = [];
+
+  console.log({
+    filepath,
+    coursesPath,
+    cwd,
+    slug,
+  });
 
   const mdx = await bundleMDX<{
     sidebar_position: number;
@@ -76,12 +85,11 @@ export async function getMdxPage(slug: string) {
     description?: string;
   }>({
     file: filepath,
-    // cwd: coursesPath,
-    cwd: path.join(__dirname, "..", "app/components"),
+    cwd,
     mdxOptions(options) {
       options.remarkPlugins = [
         ...(options.remarkPlugins ?? []),
-        // remarkMdxImages,
+        remarkMdxImages,
         remarkGfm,
         remarkDirective,
         remarkAlert,
@@ -98,14 +106,11 @@ export async function getMdxPage(slug: string) {
         // rehypeCodeTitles,
       ];
 
-      options.jsxImportSource = "@emotion/react";
+      // options.jsxImportSource = "@emotion/react";
 
       return options;
     },
     esbuildOptions: (options) => {
-      // options.outdir = path.join(process.cwd(), "public", "images", slug);
-      // options.publicPath = `/images/${slug}`;
-      // options.write = true;
       options.loader = {
         ...options.loader,
         ".png": "dataurl",
