@@ -54,7 +54,7 @@ export default function Course() {
           <Aside
             p="lg"
             hiddenBreakpoint="md"
-            width={{ md: 300 }}
+            width={{ md: 350 }}
             styles={{
               root: {
                 background: "transparent",

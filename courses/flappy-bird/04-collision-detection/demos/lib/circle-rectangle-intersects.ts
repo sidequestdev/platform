@@ -5,7 +5,7 @@ export const circleRectangleIntersects = (
   rectangleX: number,
   rectangleY: number,
   rectangleWidth: number,
-  rectangleHeight: number,
+  rectangleHeight: number
 ) => {
   // temporary variables to set edges for testing
   let testX = circleX;
