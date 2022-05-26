@@ -3,6 +3,7 @@ import { bundleMDX } from "mdx-bundler";
 import fs from "node:fs/promises";
 import path from "node:path";
 import remarkDirective from "remark-directive";
+import remarkGemoji from "remark-gemoji";
 import remarkGfm from "remark-gfm";
 import { remarkMdxImages } from "remark-mdx-images";
 import invariant from "tiny-invariant";
@@ -146,6 +147,8 @@ export async function getMdxPage(slug: string) {
       options.remarkPlugins = [
         ...(options.remarkPlugins ?? []),
         remarkMdxImages,
+        // This _must_ be before `remarkGfm` ... 🤷‍♂️
+        remarkGemoji,
         remarkGfm,
         remarkDirective,
         remarkAlert,
