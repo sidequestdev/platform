@@ -44,10 +44,74 @@ export type ToCDirectory = {
   type: "directory";
 };
 
-export async function getMdxPage(slug: string) {
+const walker = async (
+  tree: NonNullable<Awaited<ReturnType<typeof directoryTree>>>
+): Promise<ToCItem | ToCDirectory> => {
+  if (tree.type === "directory") {
+    // read in metadata.json
+    const metadataFilePath = path.join(tree.path, "metadata.yaml");
+
+    const metadata: {
+      label: string;
+      position: number;
+      // await fs.readFile(metadataFilePath, "utf8"); is getting
+      // converted to `await import()` which requires json assert
+    } = yaml.parse(await fs.readFile(metadataFilePath, "utf8"));
+
+    return {
+      label: metadata.label,
+      links: await Promise.all(tree.children.map(walker)).then((links) =>
+        links.sort((a, b) => a.position - b.position)
+      ),
+      position: metadata.position,
+      type: "directory",
+    };
+  } else if (tree.type === "file") {
+    // read in frontmatter
+    const { attributes } = fm<{
+      sidebar_position: number;
+      title: string;
+      description?: string;
+    }>(await fs.readFile(tree.path, "utf8"));
+
+    return {
+      label: attributes.title,
+      link: `/courses/${tree.path
+        .replace(`${coursesPath}/`, "")
+        .replace(/\.(md|mdx)$/i, "")}`,
+      position: attributes.sidebar_position,
+      type: "file",
+    };
+  }
+
+  throw new Error("Invalid tree type");
+};
+
+export async function getCourseTableOfContents(slug: string) {
   const courseId = slug.split("/").shift();
 
-  console.log({ courseId, slug });
+  const courses = await directoryTree(coursesPath, {
+    attributes: ["size", "extension", "type"],
+    exclude: /img|demos/i,
+    extensions: /\.mdx?$/,
+  });
+
+  invariant(courses?.type === "directory");
+
+  const course = courses?.children.find((course) => course.name === courseId);
+  invariant(course, `Could not find course ${courseId}`);
+  invariant(course.type === "directory");
+
+  const tableOfContents = await walker(course);
+
+  return {
+    slug,
+    tableOfContents,
+  };
+}
+
+export async function getMdxPage(slug: string) {
+  const courseId = slug.split("/").shift();
 
   const courses = await directoryTree(coursesPath, {
     attributes: ["size", "extension", "type"],
@@ -70,13 +134,6 @@ export async function getMdxPage(slug: string) {
   const cwd = path.resolve(filepath, "..");
 
   const pageTableOfContents: Array<RemarkTableOfContentsItem> = [];
-
-  console.log({
-    filepath,
-    coursesPath,
-    cwd,
-    slug,
-  });
 
   const mdx = await bundleMDX<{
     sidebar_position: number;
@@ -120,57 +177,11 @@ export async function getMdxPage(slug: string) {
 
   const { code, frontmatter } = mdx;
 
-  const walker = async (
-    tree: NonNullable<Awaited<ReturnType<typeof directoryTree>>>
-  ): Promise<ToCItem | ToCDirectory> => {
-    if (tree.type === "directory") {
-      // read in metadata.json
-      const metadataFilePath = path.join(tree.path, "metadata.yaml");
-
-      const metadata: {
-        label: string;
-        position: number;
-        // await fs.readFile(metadataFilePath, "utf8"); is getting
-        // converted to `await import()` which requires json assert
-      } = yaml.parse(await fs.readFile(metadataFilePath, "utf8"));
-
-      return {
-        label: metadata.label,
-        links: await Promise.all(tree.children.map(walker)).then((links) =>
-          links.sort((a, b) => a.position - b.position)
-        ),
-        position: metadata.position,
-        type: "directory",
-      };
-    } else if (tree.type === "file") {
-      // read in frontmatter
-      const { attributes } = fm<{
-        sidebar_position: number;
-        title: string;
-        description?: string;
-      }>(await fs.readFile(tree.path, "utf8"));
-
-      return {
-        label: attributes.title,
-        link: `/courses/${tree.path
-          .replace(`${coursesPath}/`, "")
-          .replace(/\.(md|mdx)$/i, "")}`,
-        position: attributes.sidebar_position,
-        type: "file",
-      };
-    }
-
-    throw new Error("Invalid tree type");
-  };
-
-  const tableOfContents = await walker(course);
-
   return {
     slug,
     html: code,
     code,
     title: frontmatter.title,
     pageTableOfContents,
-    tableOfContents,
   };
 }

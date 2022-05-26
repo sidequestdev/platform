@@ -40,12 +40,6 @@ const useStyles = ({ fluid }: { fluid?: boolean } = {}) =>
       },
     },
 
-    search: {
-      [theme.fn.smallerThan("xs")]: {
-        display: "none",
-      },
-    },
-
     dropdown: {
       position: "absolute",
       top: HEADER_HEIGHT,

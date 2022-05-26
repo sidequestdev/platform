@@ -1,6 +1,6 @@
 import { Box, createStyles, Group, Text } from "@mantine/core";
 import React, { useEffect, useState } from "react";
-import { ListSearch } from "tabler-icons-react";
+import { Heading } from "tabler-icons-react";
 
 const LINK_HEIGHT = 38;
 const INDICATOR_SIZE = 10;
@@ -85,7 +85,7 @@ export function TableOfContents({ links, slug }: TableOfContentsProps) {
   return (
     <div>
       <Group mb="md">
-        <ListSearch size={18} />
+        <Heading size={18} />
         <Text>Table of contents</Text>
       </Group>
       <div className={classes.links}>

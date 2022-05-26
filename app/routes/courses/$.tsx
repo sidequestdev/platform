@@ -8,6 +8,8 @@ import { MDXComponents } from "~/components/MDXComponents";
 import { TableOfContents } from "~/components/TableOfContents";
 import { getMdxPage } from "~/courses/course.server";
 
+type LoaderData = Awaited<ReturnType<typeof getMdxPage>>;
+
 export const loader: LoaderFunction = async ({ params }) => {
   try {
     invariant(params["*"], "expected params.*");
@@ -25,7 +27,7 @@ export const loader: LoaderFunction = async ({ params }) => {
 };
 
 export default function Course() {
-  const page = useLoaderData<Awaited<ReturnType<typeof getMdxPage>>>();
+  const page = useLoaderData<LoaderData>();
 
   const Component = React.useMemo(
     () => getMDXComponent(page.code),

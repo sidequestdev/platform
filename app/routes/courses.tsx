@@ -23,16 +23,18 @@ import { Logo } from "~/components/Logo";
 import { LinksGroup } from "~/components/NavbarLinksGroup/NavbarLinksGroup";
 import { UserButton } from "~/components/UserButton/UserButton";
 import type { ToCItem } from "~/courses/course.server";
-import { getMdxPage } from "~/courses/course.server";
+import { getCourseTableOfContents } from "~/courses/course.server";
 import { Theme, useTheme } from "~/utils/theme-provider";
+
+type LoaderData = Awaited<ReturnType<typeof getCourseTableOfContents>>;
 
 export const loader: LoaderFunction = async ({ params }) => {
   try {
     invariant(params["*"], "expected params.*");
 
-    const page = await getMdxPage(params["*"]);
+    const pageData = await getCourseTableOfContents(params["*"]);
 
-    return page;
+    return pageData;
   } catch (error) {
     console.error(error);
 
@@ -95,7 +97,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 interface CourseShellProps {
-  page: Awaited<ReturnType<typeof getMdxPage>>;
+  page: LoaderData;
 }
 
 export function CourseShell({ page }: CourseShellProps) {
@@ -187,9 +189,14 @@ export function CourseShell({ page }: CourseShellProps) {
         </Navbar>
       }
       header={
-        <Header height={70} p="md">
+        <Header height={56} p="md">
           <div
-            style={{ display: "flex", alignItems: "center", height: "100%" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              height: "100%",
+            }}
           >
             <MediaQuery largerThan="sm" styles={{ display: "none" }}>
               <Burger
@@ -224,7 +231,7 @@ export function CourseShell({ page }: CourseShellProps) {
 }
 
 export default function Courses() {
-  const page = useLoaderData<Awaited<ReturnType<typeof getMdxPage>>>();
+  const page = useLoaderData<LoaderData>();
 
   return <CourseShell page={page} />;
 }

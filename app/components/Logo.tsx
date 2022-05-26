@@ -8,8 +8,6 @@ const useStyles = createStyles((theme) => {
       display: "block",
       textDecoration: "none",
       padding: `${theme.spacing.xs}px ${theme.spacing.md}px`,
-      paddingLeft: 31,
-      marginLeft: 30,
       fontSize: theme.fontSizes.lg,
       color:
         theme.colorScheme === "dark"
