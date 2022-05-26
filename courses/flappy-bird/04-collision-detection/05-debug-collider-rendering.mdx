@@ -1,0 +1,280 @@
+---
+sidebar_position: 5
+title: Debug Collider Rendering
+---
+
+# Debug Collider Rendering
+
+## Tracking Debug Mode
+
+Let's toggle drawing the colliders when we press the `d` key.
+
+We're going to create a new file: `game.ts`, to track whether or not we're in _debug mode_.
+
+<AlertInfo title="Debug Mode">
+  It's pretty common to create features that are only available in debug mode or
+  debug builds. These are additional tooling or features to help during the
+  development process.
+</AlertInfo>
+
+```typescript title="src/game.ts" {12}
+export class Game {
+  debug = false;
+}
+```
+
+Very minimal for now, but we'll add more by the end of this section.
+
+Now create a new instance of the `Game` class, and add a keypress listener beneath our canvas click listener.
+
+```typescript title="src/main.ts" {11,17,26-30}
+import spriteSheetUrl from "#/assets/image/spritesheet.png";
+import { BoxCollider } from "#/components/box-collider";
+import { CircleCollider } from "#/components/circle-collider";
+import { SpriteAnimation } from "#/components/sprite-animation";
+import { SpriteAnimationDetails } from "#/components/sprite-animation-details";
+import { SpriteData } from "#/components/sprite-data";
+import { Vector2d } from "#/components/vector2d";
+import { config } from "#/config";
+import { Bird } from "#/entities/bird";
+import { Ground } from "#/entities/ground";
+import { Game } from "#/game";
+import { loadImage } from "#/lib/asset-loader";
+import { circleRectangleIntersects } from "#/lib/collision";
+import { spriteMap } from "#/sprite-map";
+
+const spriteSheet = await loadImage(spriteSheetUrl);
+const game = new Game();
+
+// ...
+
+// Add event listener to trigger bird flap
+canvas.addEventListener("click", () => {
+  bird.flap();
+});
+
+window.addEventListener("keypress", (event) => {
+  if (event.code === "KeyD") {
+    game.debug = !game.debug;
+  }
+});
+
+// ...
+```
+
+Now that we're tracking this, we need to react to it in the Ground and Bird classes.
+
+## Debug Rendering in the Bird
+
+Let's make a few changes to the `Bird` class to support debug rendering.
+
+```typescript title="src/entities/bird.ts" +{5,8,24,34,56-63}
+import { CircleCollider } from "#/components/circle-collider";
+import { SpriteAnimation } from "#/components/sprite-animation";
+import { SpriteData } from "#/components/sprite-data";
+import { Vector2d } from "#/components/vector2d";
+import { Game } from "#/game";
+
+type BirdOptions = {
+  game: Game;
+  spriteSheet: HTMLImageElement;
+  spriteData: SpriteData;
+  position: Vector2d;
+  flapAnimation: SpriteAnimation;
+  circlCollider: CircleCollider;
+};
+
+export class Bird {
+  state = BirdState.Idle;
+  spriteSheet: HTMLImageElement;
+  spriteData: SpriteData;
+  position: Vector2d;
+  flapAnimation: SpriteAnimation;
+  velocity = new Vector2d();
+  circleCollider: CircleCollider;
+  game: Game;
+
+  // ...
+
+  constructor(options: BirdOptions) {
+    this.spriteSheet = options.spriteSheet;
+    this.spriteData = options.spriteData;
+    this.position = options.position;
+    this.flapAnimation = options.flapAnimation;
+    this.circleCollider = options.circlCollider;
+    this.game = options.game;
+  }
+
+  public draw(context: CanvasRenderingContext2D) {
+    context.translate(this.position.x, this.position.y);
+    const rotation = (this.rotation * Math.PI) / 180;
+    context.rotate(rotation);
+
+    const currentFrame = this.flapAnimation.getCurrentFrame();
+
+    context.drawImage(
+      this.spriteSheet,
+      currentFrame.sourceX,
+      currentFrame.sourceY,
+      currentFrame.width,
+      currentFrame.height,
+      -currentFrame.width / 2,
+      -currentFrame.height / 2,
+      currentFrame.width,
+      currentFrame.height
+    );
+
+    if (this.game.debug) {
+      context.fillStyle = "red";
+      context.globalAlpha = 0.5;
+      context.beginPath();
+      context.arc(0, 0, this.circleCollider.radius, 0, 2 * Math.PI);
+      context.fill();
+      context.globalAlpha = 1;
+    }
+
+    context.resetTransform();
+  }
+}
+```
+
+Then update the instance in `main.ts`:
+
+```typescript title="src/main.ts" +{2}
+const bird = new Bird({
+  game,
+  spriteSheet: spriteSheet,
+  position: new Vector2d(config.gameWidth / 4, config.gameHeight / 2),
+  spriteData: new SpriteData(
+    spriteMap.bird.idle.sourceX,
+    spriteMap.bird.idle.sourceY,
+    spriteMap.bird.idle.width,
+    spriteMap.bird.idle.height
+  ),
+  flapAnimation: new SpriteAnimation(
+    new SpriteAnimationDetails(
+      spriteMap.bird.animations.flap.sourceX,
+      spriteMap.bird.animations.flap.sourceY,
+      spriteMap.bird.animations.flap.width,
+      spriteMap.bird.animations.flap.height,
+      spriteMap.bird.animations.flap.frameWidth,
+      spriteMap.bird.animations.flap.frameHeight
+    ),
+    0.3
+  ),
+  circlCollider: new CircleCollider(0, 0, 12),
+});
+```
+
+Once the window has reloaded, go ahead and press the `d` key to toggle the debug rendering. Looking pretty good :sunglasses:
+
+## Debug Rendering in the Ground
+
+Let's make a few changes to the Ground class to support debug rendering.
+
+```typescript title="src/entities/ground.ts" +{4,8,21,32,69-80}
+import { BoxCollider } from "#/components/box-collider";
+import { SpriteData } from "#/components/sprite-data";
+import { Vector2d } from "#/components/vector2d";
+import { Game } from "#/game";
+
+type GroundOptions = {
+  boxCollider: BoxCollider;
+  game: Game;
+  position: Vector2d;
+  spriteData: SpriteData;
+  spriteSheet: HTMLImageElement;
+
+  /**
+   * This is in pixels **per frame**.
+   */
+  scrollSpeed: number;
+};
+
+export class Ground {
+  boxCollider: BoxCollider;
+  game: Game;
+  position: Vector2d;
+  spriteData: SpriteData;
+  spriteSheet: HTMLImageElement;
+  scrollSpeed: number;
+
+  // Track the current scroll position separately from the position.
+  public scrollPositionX = 0;
+
+  constructor(options: GroundOptions) {
+    this.boxCollider = options.boxCollider;
+    this.game = options.game;
+    this.position = options.position;
+    this.spriteData = options.spriteData;
+    this.spriteSheet = options.spriteSheet;
+    this.scrollSpeed = options.scrollSpeed;
+  }
+
+  public draw(context: CanvasRenderingContext2D) {
+    // First track how far the image is offscreen.
+    const diff = Math.abs(this.scrollPositionX);
+
+    // Draw the visible portion of the image.
+    context.drawImage(
+      this.spriteSheet,
+      this.spriteData.sourceX + diff,
+      this.spriteData.sourceY,
+      this.spriteData.width - diff,
+      this.spriteData.height,
+      this.position.x,
+      this.position.y,
+      this.spriteData.width - diff,
+      this.spriteData.height
+    );
+
+    // Draw the remaining portion of the image (what is currently offscreen).
+    context.drawImage(
+      this.spriteSheet,
+      this.spriteData.sourceX,
+      this.spriteData.sourceY,
+      diff,
+      this.spriteData.height,
+      context.canvas.width - diff,
+      this.position.y,
+      diff,
+      this.spriteData.height
+    );
+
+    if (this.game.debug) {
+      context.fillStyle = "red";
+      context.globalAlpha = 0.5;
+      context.fillRect(
+        this.position.x,
+        this.position.y,
+        this.boxCollider.width,
+        this.boxCollider.height
+      );
+
+      context.globalAlpha = 1;
+    }
+  }
+}
+```
+
+Then update the instance in main.ts:
+
+```typescript title="src/main.ts" +{8}
+const ground = new Ground({
+  boxCollider: new BoxCollider(
+    0,
+    0,
+    spriteMap.ground.width,
+    spriteMap.ground.height
+  ),
+  game,
+  position: new Vector2d(0, config.gameHeight - spriteMap.ground.height),
+  spriteData: spriteMap.ground,
+  spriteSheet: spriteSheet,
+  scrollSpeed: 120,
+});
+```
+
+On window reload, press the `d` key and you should also see the ground collider rendering. Sweet stuff!
+
+Next, let's finally detect collision between the bird and the ground.

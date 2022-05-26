@@ -1,0 +1,144 @@
+---
+sidebar_position: 4
+title: Entity Colliders
+---
+
+# Entity Colliders
+
+## Add Circle Collider to the Bird
+
+Now we need to update the Bird class to take a circle collider in the constructor, and update the instance in `main.ts`.
+
+```typescript title="src/entities/bird.ts" +{1,11,21,30}
+import { CircleCollider } from "#/components/circle-collider";
+import { SpriteAnimation } from "#/components/sprite-animation";
+import { SpriteData } from "#/components/sprite-data";
+import { Vector2d } from "#/components/vector2d";
+
+type BirdOptions = {
+  spriteSheet: HTMLImageElement;
+  spriteData: SpriteData;
+  position: Vector2d;
+  flapAnimation: SpriteAnimation;
+  circlCollider: CircleCollider;
+};
+
+export class Bird {
+  state = BirdState.Idle;
+  spriteSheet: HTMLImageElement;
+  spriteData: SpriteData;
+  position: Vector2d;
+  flapAnimation: SpriteAnimation;
+  velocity = new Vector2d();
+  circleCollider: CircleCollider;
+
+  // ...
+
+  constructor(options: BirdOptions) {
+    this.spriteSheet = options.spriteSheet;
+    this.spriteData = options.spriteData;
+    this.position = options.position;
+    this.flapAnimation = options.flapAnimation;
+    this.circleCollider = options.circlCollider;
+  }
+
+  // ...
+}
+```
+
+```typescript title="src/main.ts" +{2,27}
+import spriteSheetUrl from "#/assets/image/spritesheet.png";
+import { CircleCollider } from "#/components/circle-collider";
+import { SpriteAnimation } from "#/components/sprite-animation";
+
+// ...
+
+const bird = new Bird({
+  spriteSheet: spriteSheet,
+  position: new Vector2d(config.gameWidth / 4, config.gameHeight / 2),
+  spriteData: new SpriteData(
+    spriteMap.bird.idle.sourceX,
+    spriteMap.bird.idle.sourceY,
+    spriteMap.bird.idle.width,
+    spriteMap.bird.idle.height
+  ),
+  flapAnimation: new SpriteAnimation(
+    new SpriteAnimationDetails(
+      spriteMap.bird.animations.flap.sourceX,
+      spriteMap.bird.animations.flap.sourceY,
+      spriteMap.bird.animations.flap.width,
+      spriteMap.bird.animations.flap.height,
+      spriteMap.bird.animations.flap.frameWidth,
+      spriteMap.bird.animations.flap.frameHeight
+    ),
+    0.3
+  ),
+  circlCollider: new CircleCollider(0, 0, 20),
+});
+```
+
+## Add Box Collider to the Ground
+
+Let's update the Ground constructor to take a box collider, then update the instance.
+
+```typescript title="src/entities/ground.ts" +{1,6,18,28}
+import { BoxCollider } from "#/components/box-collider";
+import { SpriteData } from "#/components/sprite-data";
+import { Vector2d } from "#/components/vector2d";
+
+type GroundOptions = {
+  boxCollider: BoxCollider;
+  position: Vector2d;
+  spriteData: SpriteData;
+  spriteSheet: HTMLImageElement;
+
+  /**
+   * This is in pixels **per frame**.
+   */
+  scrollSpeed: number;
+};
+
+export class Ground {
+  boxCollider: BoxCollider;
+  position: Vector2d;
+  spriteData: SpriteData;
+  spriteSheet: HTMLImageElement;
+  scrollSpeed: number;
+
+  // Track the current scroll position separately from the position.
+  public scrollPositionX = 0;
+
+  constructor(options: GroundOptions) {
+    this.boxCollider = options.boxCollider;
+    this.position = options.position;
+    this.spriteData = options.spriteData;
+    this.spriteSheet = options.spriteSheet;
+    this.scrollSpeed = options.scrollSpeed;
+  }
+
+  // ...
+}
+```
+
+```typescript title="src/main.ts" +{2,8-13}
+import spriteSheetUrl from "#/assets/image/spritesheet.png";
+import { BoxCollider } from "#/components/box-collider";
+import { CircleCollider } from "#/components/circle-collider";
+
+// ...
+
+const ground = new Ground({
+  boxCollider: new BoxCollider(
+    0,
+    0,
+    spriteMap.ground.width,
+    spriteMap.ground.height
+  ),
+  position: new Vector2d(0, config.gameHeight - spriteMap.ground.height),
+  spriteData: spriteMap.ground,
+  spriteSheet: spriteSheet,
+  scrollSpeed: 120,
+});
+```
+
+Next, let's add support for toggling the rendering of the colliders when we press the `d` key. It would be nice to get a little visual feedback on whether or not our colliders _look_ correct.

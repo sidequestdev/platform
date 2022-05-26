@@ -1,0 +1,187 @@
+---
+sidebar_position: 6
+title: Check for Collision in the Game Loop
+---
+
+# Check for Collision in the Game Loop
+
+## Game State
+
+When a collision is detected we'll set the game state to game over. We're going to extend the `Game` class to track a new `state` enum to reflect one of three game states:
+
+- `GameOver`
+- `Playing`
+- `Title`
+  - This refers to the state where the player must click to start the game. Like a title screen.
+
+We're also going to store our config in the `Game` class as well. This will give a convenient place to access the config values, and only require us to pass a single new value to our entities.
+
+```typescript title="src/game.ts" +{1-7,10,14-16,18-20}
+import { config } from "#/config";
+
+export enum GameState {
+  GameOver,
+  Playing,
+  Title,
+}
+
+export class Game {
+  config: Config;
+  debug = false;
+  state = GameState.Title;
+
+  constructor(config: Config) {
+    this.config = config;
+  }
+
+  reset() {
+    this.state = GameState.Title;
+  }
+}
+```
+
+We also added a `reset` method to the `Game` class to reset the game state when needed.
+
+## Collision Response
+
+Let's detect the collision and react:
+
+```typescript title="src/main.ts" +{2,13-27}
+// ...
+import { Game, GameState } from "#/game";
+// ...
+
+const frame = (hrt: DOMHighResTimeStamp) => {
+  const dt = Math.min(1000, hrt - last) / 1000;
+
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  ground.update(dt);
+  bird.update(dt);
+
+  const didBirdHitGround = circleRectangleIntersects(
+    bird.position.x + bird.circleCollider.offsetX,
+    bird.position.y + bird.circleCollider.offsetY,
+    bird.circleCollider.radius,
+    ground.position.x + ground.boxCollider.offsetX,
+    ground.position.y + ground.boxCollider.offsetY,
+    ground.boxCollider.width,
+    ground.boxCollider.height
+  );
+
+  if (didBirdHitGround) {
+    bird.die();
+    ground.stop();
+    game.state = GameState.GameOver;
+  }
+
+  // Draw the background
+  context.drawImage(
+    spriteSheet,
+    spriteMap.background.sourceX,
+    spriteMap.background.sourceY,
+    spriteMap.background.width,
+    spriteMap.background.height,
+    0,
+    0,
+    spriteMap.background.width,
+    spriteMap.background.height
+  );
+
+  ground.draw(context);
+  bird.draw(context);
+
+  last = hrt;
+
+  requestAnimationFrame(frame);
+};
+```
+
+We don't currently have `bird.die()` and `ground.stop()`. Let's add those now.
+
+```typescript title="src/entities/bird.ts"
+public die() {
+  this.state = BirdState.Dead;
+}
+```
+
+Now for ground. This has a few more changes. When the game is over we want the ground to stop moving, so we'll track whether or not we're currently scrolling.
+
+```typescript title="src/entities/ground.ts" +{2,6-8,10-12,15-17}
+export class Ground {
+  public scrolling = true;
+
+  // ...
+
+  public stop() {
+    this.scrolling = false;
+  }
+
+  public start() {
+    this.scrolling = true;
+  }
+
+  public update(delta: number) {
+    if (this.scrolling === false) {
+      return;
+    }
+    // ...
+  }
+}
+```
+
+If we're not scrolling, we just return early in the `update` method.
+
+## Click Handler Refactor
+
+Now back to `main.ts` - we need to update the click handler to reflect our new game states.
+
+```typescript title="src/main.ts" +{2-23}
+canvas.addEventListener("click", () => {
+  switch (game.state) {
+    case GameState.Title: {
+      game.state = GameState.Playing;
+      bird.flap();
+
+      break;
+    }
+
+    case GameState.Playing: {
+      bird.flap();
+
+      break;
+    }
+
+    case GameState.GameOver: {
+      game.reset();
+      bird.reset();
+      ground.start();
+
+      break;
+    }
+  }
+});
+```
+
+This is pretty similar to the way we handled the `flap` method in the `Bird` class. The game starts in `Title` state, and when the player clicks we want to change the state to `Playing`. `Playing` is pretty basic, just react to clicks and call `flap()` like usual. When the game is over, we want to reset the game state and reset the entities.
+
+## Bird and Ground Draw Order
+
+Before we had collision detection, it was handy to see the bird fall _in front_ of the ground. This way we knew where it was. Now that we have collision detection, let's draw the bird _before_ the ground so it appears to sink into it.
+
+```typescript title="src/main.ts" +{4-5}
+const frame = (hrt: DOMHighResTimeStamp) => {
+  // ...
+
+  bird.draw(context);
+  ground.draw(context);
+
+  last = hrt;
+
+  requestAnimationFrame(frame);
+};
+```
+
+We did this purely cause we thought it _looked_ better. It's not necessary if you don't agree.
+
+There you have it! We've got collision detection and a nice complete game flow in place. Next up, the pipes.

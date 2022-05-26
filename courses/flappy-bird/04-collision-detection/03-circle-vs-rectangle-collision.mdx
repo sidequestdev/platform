@@ -1,0 +1,142 @@
+---
+sidebar_position: 3
+title: Circle VS Rectangle Collision
+---
+
+import { CircleVsRectangle } from "./demos/CircleVsRectangle.tsx";
+
+# Circle VS Rectangle Collision
+
+## Collision Detection VS Resolution
+
+Before we get into collision let's talk about **detection** and **resolution**. Collision detection is the process of determining if two objects are intersecting/overlapping. Collision resolution refers to how we _handle_ a collision event. For example, in a platformer game we'd detect a collision when the player descends from a jump and lands on the ground. This means the player has moved _into_ the ground within a game loop frame for the detection to be true, and we now need to _push_ them back up so they are no longer overlapping.
+
+In this game we will not be addressing collision resolution. When the bird hits a pipe or the ground and "sinks" into it, we're going to leave it for visual effect. The reason is because when collision occurs we want it be very visually clear, and we're going to stop the game to restart on click anyway.
+
+## How it Works
+
+We need to determine the distance between two points: the circle's position and some point along the rectangle's edges. We'll be using [Pythagoras' theorem](https://en.wikipedia.org/wiki/Pythagorean_theorem) and the hypotenuse (or distance) to determine if a circle and rectangle are overlapping. As a reminder, to determine the hypotenuse (`c`) the formula is: `c = sqrt(a² + b²)`.
+
+<ThemeImage
+  alt="pythagorean diagram"
+  width="473"
+  height="567"
+  light={{
+    src: "/images/courses/flappy-bird/04-collision-detection/pythagorean-light.png",
+  }}
+  dark={{
+    src: "/images/courses/flappy-bird/04-collision-detection/pythagorean-dark.png",
+  }}
+/>
+
+Given two points, we can determine the length of sides `a` and `b` to complete the formula. We already have the position of the circle at its center. We need to determine a test point along the rectangle's edges. We have 8 possible points of interest: the 4 corners, and one along each edge.
+
+To start we'll use the circle's position _as_ the test point. Then we'll perform a series of circle-to-edge comparisons to determine the most approriate x and y values for the test point. This sounds more complicated than it is. Here's a code segment to demonstrate:
+
+```typescript
+// our test point, start with the circle's position
+let testX = circleX;
+let testY = circleY;
+
+if (circleX < rectangleX) {
+  // left edge
+  testX = rectangleX;
+} else if (circleX > rectangleX + rectangleWidth) {
+  // right edge
+  testX = rectangleX + rectangleWidth;
+}
+
+if (circleY < rectangleY) {
+  // top edge
+  testY = rectangleY;
+} else if (circleY > rectangleY + rectangleHeight) {
+  // bottom edge
+  testY = rectangleY + rectangleHeight;
+}
+```
+
+We started by copying the circle's postition to the test point because we won't always update _both_ the x and y values of the test point. That only happens if the circle is in a quadrant that contains one of the corners of the rectangle. For example, `circleX < rectangleX && circleY < rectangleY` would put us in the top left quadrant. When the circle is not in one of the 4 quadrants we only need to update the test point's x or y value depending on which edge it's along.
+
+Here's a diagram to help visualize this:
+
+<ThemeImage
+  alt="Circle versus rectangle intersects diagram"
+  width="379"
+  height="379"
+  light={{
+    src: "/images/courses/flappy-bird/04-collision-detection/circle-rectangle-intersects-quadrants-light.png",
+  }}
+  dark={{
+    src: "/images/courses/flappy-bird/04-collision-detection/circle-rectangle-intersects-quadrants-dark.png",
+  }}
+/>
+
+The orange etched sections are the quadrants that would contain one of the rectangles corners. If the circle is outside of those quadrants, it must be along one of the edges.
+
+## Circle VS Rectangle Intersect Helper
+
+Let's add a helper function to determine circle vs rectangle collision.
+
+<AlertInfo>
+  There is an excellent article on collision detection at [this
+  link](https://www.jeffreythompson.org/collision-detection/circle-rect.php).
+  We'll be using the circle vs rectangle collision code from this series.
+</AlertInfo>
+
+```typescript title="src/lib/collision.ts"
+export const circleRectangleIntersects = (
+  circleX: number,
+  circleY: number,
+  radius: number,
+  rectangleX: number,
+  rectangleY: number,
+  rectangleWidth: number,
+  rectangleHeight: number
+) => {
+  // our test point, start with the circle's position
+  let testX = circleX;
+  let testY = circleY;
+
+  // which edge is closest?
+
+  if (circleX < rectangleX) {
+    // left edge
+    testX = rectangleX;
+  } else if (circleX > rectangleX + rectangleWidth) {
+    // right edge
+    testX = rectangleX + rectangleWidth;
+  }
+
+  if (circleY < rectangleY) {
+    // top edge
+    testY = rectangleY;
+  } else if (circleY > rectangleY + rectangleHeight) {
+    // bottom edge
+    testY = rectangleY + rectangleHeight;
+  }
+
+  // get distance from closest edges
+
+  // length of side a
+  const distX = circleX - testX;
+  // length of side b
+  const distY = circleY - testY;
+  // hypotenuse
+  const distance = Math.sqrt(distX * distX + distY * distY);
+
+  // if the distance is less than the radius, collision!
+  if (distance <= radius) {
+    return true;
+  }
+
+  return false;
+};
+```
+
+## Demo
+
+Here's an interactive demo that will hopefully help you further understand the code above.
+
+<CircleVsRectangle />
+
+With that out of the way, let's move on to setting up the entities with their colliders.

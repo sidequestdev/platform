@@ -1,0 +1,23 @@
+---
+sidebar_position: 1
+title: Preface
+---
+
+# Preface
+
+Currently we can control the bird, but we'll just dive into nothingness when we fall off the screen. Let's fix that by adding collision checks between the bird and ground to trigger a game over workflow.
+
+We'll use two types of colliders: a circle collider for the bird, and a box collider for the ground. The box collider will specifically be an Axis-Aligned Bounding Box. This is a rectangle that does not rotate. The circle collider will be used for the bird because the bird rotates, and it better matches the body shape.
+
+<AlertInfo title="Collider">
+  If you're not familiar with the term collider, think goemetrical shape. They
+  would have attributes like width and height for a rectangle, and radius for a
+  circle. These help determine their size, which along with position information
+  will help determine if they are colliding (overlapping).
+</AlertInfo>
+
+<AlertInfo title="Axis-Aligned Bounding Box">
+  You will often see Axis-Aligned Bounding Boxes abbreviated as AABB. AABB would
+  be a good term to remember when googling for problems or solutions related to
+  collision.
+</AlertInfo>

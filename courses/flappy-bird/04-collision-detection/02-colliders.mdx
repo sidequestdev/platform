@@ -1,0 +1,60 @@
+---
+sidebar_position: 2
+title: Colliders
+---
+
+# Colliders
+
+## Circle Collider Component
+
+For the circle collider we'll store the radius, and the position offset. The position offset would be used if we needed to adjust the position of the collider _relative_ to the birds position. We won't be using offsets for the birds circle collider, but we will for pipes later on, so we'll include it for consistency.
+
+The diagram below shows the relationship between the circle collider and the bird:
+
+<ThemeImage
+  alt="Bird collider diagram"
+  width="396"
+  height="286"
+  light={{
+    src: "/images/courses/flappy-bird/04-collision-detection/bird-collider-example-light.png",
+  }}
+  dark={{
+    src: "/images/courses/flappy-bird/04-collision-detection/bird-collider-example-dark.png",
+  }}
+/>
+
+<AlertInfo title="Collider Sizing">
+  It's very common to size a collider smaller than the avatar the player
+  controls. One reason is it gives a much better illusion of narrow misses. The
+  reverse could have a negative effect, like a cheap death, when the player
+  believes they were never hit. Play testing will lead you to what feels best.
+</AlertInfo>
+
+The collider is positioned directly at the birds position, and will also be slightly smaller than the bird _visually_. We say visually because the bird sprite is actually a rectangle, and would be much larger than the collider.
+
+Create the cirlce collider:
+
+```typescript title="src/components/circle-collider.ts"
+export class CircleCollider {
+  constructor(
+    public offsetX: number,
+    public offsetY: number,
+    public radius: number
+  ) {}
+}
+```
+
+## Box Collider Component
+
+The box collider component class will store the width, height and offset of the box. We'll want to adjust the position of the collider relative to the entity's position. This won't be true for the ground, but we will leverage the offset when we get to the pipes.
+
+```typescript title="src/components/box-collider.ts"
+export class BoxCollider {
+  constructor(
+    public offsetX: number,
+    public offsetY: number,
+    public width: number,
+    public height: number
+  ) {}
+}
+```
