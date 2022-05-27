@@ -1,7 +1,7 @@
 import type {
   LinksFunction,
   LoaderFunction,
-  MetaFunction,
+  MetaFunction
 } from "@remix-run/node";
 import {
   Links,
@@ -10,7 +10,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useLoaderData,
+  useLoaderData
 } from "@remix-run/react";
 import { MantineTheme } from "./components/MantineTheme";
 import type { Theme } from "./utils/theme-provider";

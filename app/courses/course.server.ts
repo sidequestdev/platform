@@ -25,6 +25,7 @@ process.env.ESBUILD_BINARY_PATH = path.join(
 // relative to the server output, not the source!
 const coursesPath = path.join(__dirname, "..", "courses");
 
+// TODO: Have this return some real metadata to drive content
 export async function getCourses() {
   const dir = await fs.readdir(coursesPath);
 
