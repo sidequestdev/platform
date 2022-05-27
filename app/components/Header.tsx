@@ -157,6 +157,7 @@ export function HeaderResponsive({ fluid, links }: HeaderResponsiveProps) {
           <Group ml={50} spacing={5} className={classes.links}>
             {items}
           </Group>
+
           <ActionIcon
             onClick={() => {
               setTheme((current) =>

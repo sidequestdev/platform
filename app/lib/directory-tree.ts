@@ -253,12 +253,3 @@ export async function directoryTree<Options extends DirectoryTreeOptions>(
 
   return item;
 }
-
-// directoryTree("./courses", {
-//   attributes: ["size", "extension", "type"],
-// }).then((results) =>
-//   console.dir(results, {
-//     compact: false,
-//     depth: Infinity,
-//   })
-// );

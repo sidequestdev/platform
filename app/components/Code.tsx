@@ -3,8 +3,8 @@ import type { PrismProps } from "@mantine/prism";
 import { Prism } from "@mantine/prism";
 import type { PrismSharedProps } from "@mantine/prism/lib/types";
 import React from "react";
-import invariant from "tiny-invariant";
 import { SiTypescript } from "react-icons/si";
+import invariant from "tiny-invariant";
 
 interface CodeProps
   extends React.DetailedHTMLProps<
