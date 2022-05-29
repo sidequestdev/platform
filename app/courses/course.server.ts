@@ -14,13 +14,15 @@ import { remarkAlert } from "~/lib/remark-plugins/remark-alert";
 import type { RemarkTableOfContentsItem } from "~/lib/remark-plugins/remark-toc";
 import remarkToc from "~/lib/remark-plugins/remark-toc";
 
-process.env.ESBUILD_BINARY_PATH = path.join(
-  process.cwd(),
-  "node_modules",
-  "esbuild",
-  "bin",
-  "esbuild"
-);
+if (process.env.NODE_ENV === "production") {
+  process.env.ESBUILD_BINARY_PATH = path.join(
+    process.cwd(),
+    "node_modules",
+    "esbuild",
+    "bin",
+    "esbuild"
+  );
+}
 
 // relative to the server output, not the source!
 const coursesPath = path.join(__dirname, "..", "courses");

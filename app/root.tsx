@@ -17,6 +17,7 @@ import { HeaderResponsive } from "./components/Header";
 import { MantineTheme } from "./components/MantineTheme";
 import { footerData } from "./mocks/footer";
 import { navbarLinks } from "./mocks/navbar";
+import { getUser } from "./session.server";
 import type { Theme } from "./utils/theme-provider";
 import { ThemeProvider } from "./utils/theme-provider";
 import { getThemeSession } from "./utils/theme.server";
@@ -34,6 +35,7 @@ export const meta: MetaFunction = () => ({
 export type LoaderData = {
   theme: Theme | null;
   coursePage: boolean;
+  user: Awaited<ReturnType<typeof getUser>>;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -42,6 +44,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const data: LoaderData = {
     theme: themeSession.getTheme(),
     coursePage: request.url.includes("courses"),
+    user: await getUser(request),
   };
 
   return data;

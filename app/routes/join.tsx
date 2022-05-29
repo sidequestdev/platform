@@ -30,6 +30,9 @@ interface ActionData {
   errors: {
     email?: string;
     password?: string;
+    confirmPassword?: string;
+    firstName?: string;
+    lastName?: string;
   };
 }
 
@@ -37,6 +40,9 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
+  const confirmPassword = formData.get("confirmPassword");
+  const firstName = formData.get("firstName");
+  const lastName = formData.get("lastName");
   const redirectTo = safeRedirect(formData.get("redirectTo"), "/");
 
   if (!validateEmail(email)) {
@@ -46,9 +52,37 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
+  if (typeof firstName !== "string") {
+    return json<ActionData>(
+      { errors: { firstName: "First name is invalid" } },
+      { status: 400 }
+    );
+  }
+
+  if (typeof lastName !== "string") {
+    return json<ActionData>(
+      { errors: { lastName: "Last name is invalid" } },
+      { status: 400 }
+    );
+  }
+
   if (typeof password !== "string") {
     return json<ActionData>(
       { errors: { password: "Password is required" } },
+      { status: 400 }
+    );
+  }
+
+  if (typeof confirmPassword !== "string") {
+    return json<ActionData>(
+      { errors: { confirmPassword: "Password confirmation is required" } },
+      { status: 400 }
+    );
+  }
+
+  if (password !== confirmPassword) {
+    return json<ActionData>(
+      { errors: { confirmPassword: "Password confirmation does not match" } },
       { status: 400 }
     );
   }
@@ -68,7 +102,7 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const user = await createUser(email, password);
+  const user = await createUser({ firstName, lastName, email, password });
 
   return createUserSession({
     request,
@@ -90,6 +124,9 @@ export default function Join() {
   const actionData = useActionData() as ActionData;
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);
+  const passwordConfirmRef = React.useRef<HTMLInputElement>(null);
+  const firstNameRef = React.useRef<HTMLInputElement>(null);
+  const lastNameRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     if (actionData?.errors?.email) {
@@ -113,19 +150,70 @@ export default function Join() {
 
       <Text color="dimmed" size="sm" align="center" mt={5}>
         Already have an account?{" "}
-        <Anchor<"a"> href="/login" size="sm">
+        <Anchor component={Link} to="/login" size="sm">
           Sign in
         </Anchor>
       </Text>
 
       <Paper withBorder shadow="md" p={30} mt={30} radius="md">
         <Form method="post">
-          <TextInput label="Email" placeholder="you@domain.com" required />
+          <TextInput
+            ref={firstNameRef}
+            label="First Name"
+            name="firstName"
+            placeholder="First Name"
+            autoFocus={true}
+            id="firstName"
+            type="text"
+            error={actionData?.errors?.firstName}
+            required
+          />
+
+          <TextInput
+            ref={lastNameRef}
+            label="Last Name"
+            name="lastName"
+            placeholder="Last Name"
+            id="LastName"
+            type="text"
+            error={actionData?.errors?.lastName}
+            mt="md"
+          />
+
+          <TextInput
+            ref={emailRef}
+            label="Email"
+            name="email"
+            placeholder="you@domain.com"
+            id="email"
+            type="email"
+            autoComplete="email"
+            error={actionData?.errors?.email}
+            required
+            mt="md"
+          />
 
           <PasswordInput
+            ref={passwordRef}
             label="Password"
+            id="password"
+            name="password"
             placeholder="Your password"
+            autoComplete="new-password"
             required
+            error={actionData?.errors?.password}
+            mt="md"
+          />
+
+          <PasswordInput
+            ref={passwordConfirmRef}
+            label="Confirm Password"
+            id="confirmPassword"
+            name="confirmPassword"
+            placeholder="Confirm your password"
+            autoComplete="new-password"
+            required
+            error={actionData?.errors?.confirmPassword}
             mt="md"
           />
 

@@ -1,17 +1,25 @@
 import {
   ActionIcon,
+  Avatar,
   Burger,
+  Button,
   createStyles,
+  Divider,
   Group,
   Header,
+  Menu,
   Paper,
+  Text,
   Transition,
+  UnstyledButton,
   useMantineColorScheme,
+  useMantineTheme,
 } from "@mantine/core";
 import { useBooleanToggle } from "@mantine/hooks";
+import { Form, Link } from "@remix-run/react";
 import React, { useState } from "react";
-import { MoonStars, Sun } from "tabler-icons-react";
-import { Theme, useTheme } from "~/utils/theme-provider";
+import { Book, ChevronDown, Logout, MoonStars, Sun } from "tabler-icons-react";
+import { useOptionalUser } from "~/utils";
 import { Logo } from "./Logo";
 
 const HEADER_HEIGHT = 56;
@@ -100,6 +108,41 @@ const useStyles = ({ fluid }: { fluid?: boolean } = {}) =>
           ],
       },
     },
+
+    userMenu: {
+      [theme.fn.smallerThan("md")]: {
+        display: "none",
+      },
+    },
+
+    user: {
+      color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.black,
+      padding: `${theme.spacing.xs}px ${theme.spacing.sm}px`,
+      borderRadius: theme.radius.sm,
+      transition: "background-color 100ms ease",
+
+      "&:hover": {
+        backgroundColor:
+          theme.colorScheme === "dark" ? theme.colors.dark[8] : theme.white,
+      },
+    },
+
+    userActive: {
+      backgroundColor:
+        theme.colorScheme === "dark" ? theme.colors.dark[8] : theme.white,
+    },
+
+    signUpButton: {
+      [theme.fn.smallerThan("md")]: {
+        display: "none",
+      },
+    },
+
+    signInButton: {
+      [theme.fn.smallerThan("md")]: {
+        display: "none",
+      },
+    },
   }));
 
 interface HeaderResponsiveProps {
@@ -109,20 +152,18 @@ interface HeaderResponsiveProps {
 
 export function HeaderResponsive({ fluid, links }: HeaderResponsiveProps) {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
-  const [theme, setTheme] = useTheme();
+  const mantineTheme = useMantineTheme();
   const [opened, toggleOpened] = useBooleanToggle(false);
-  const [active, setActive] = useState("");
-  const { classes } = useStyles({ fluid })();
+  const [userMenuOpened, setUserMenuOpened] = useState(false);
+  const { classes, cx } = useStyles({ fluid })();
+  const user = useOptionalUser();
 
   const items = links.map((link) => (
     <a
       key={link.label}
       href={link.link}
       className={classes.link}
-      onClick={(event) => {
-        setActive(link.link);
-        toggleOpened(false);
-      }}
+      onClick={() => toggleOpened(false)}
     >
       {link.label}
     </a>
@@ -146,6 +187,38 @@ export function HeaderResponsive({ fluid, links }: HeaderResponsiveProps) {
           >
             {(styles) => (
               <Paper className={classes.dropdown} withBorder style={styles}>
+                {user ? (
+                  <Form action="/logout" method="post">
+                    <UnstyledButton
+                      type="submit"
+                      className={classes.link}
+                      onClick={() => toggleOpened(false)}
+                      style={{ width: "100%" }}
+                    >
+                      Logout
+                    </UnstyledButton>
+                  </Form>
+                ) : (
+                  <>
+                    <Link
+                      className={classes.link}
+                      to="/join"
+                      onClick={() => toggleOpened(false)}
+                    >
+                      Sign up
+                    </Link>
+                    <Link
+                      className={classes.link}
+                      to="/login"
+                      onClick={() => toggleOpened(false)}
+                    >
+                      Sign in
+                    </Link>
+                  </>
+                )}
+
+                <Divider />
+
                 {items}
               </Paper>
             )}
@@ -158,17 +231,78 @@ export function HeaderResponsive({ fluid, links }: HeaderResponsiveProps) {
             {items}
           </Group>
 
-          <ActionIcon
-            onClick={() => {
-              setTheme((current) =>
-                current === Theme.DARK ? Theme.LIGHT : Theme.DARK
-              );
+          {user ? (
+            <Menu
+              size={260}
+              placement="end"
+              transition="pop-top-right"
+              className={classes.userMenu}
+              onClose={() => setUserMenuOpened(false)}
+              onOpen={() => setUserMenuOpened(true)}
+              control={
+                <UnstyledButton
+                  className={cx(classes.user, {
+                    [classes.userActive]: userMenuOpened,
+                  })}
+                >
+                  <Group spacing={7}>
+                    <Avatar
+                      // src={user.image}
+                      alt={user.firstName}
+                      radius="xl"
+                      size={32}
+                    >
+                      {user.firstName.at(0)}
+                    </Avatar>
+                    <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
+                      {user.firstName}
+                    </Text>
+                    <ChevronDown size={12} />
+                  </Group>
+                </UnstyledButton>
+              }
+            >
+              <Menu.Item
+                icon={<Book size={14} color={mantineTheme.colors.red[6]} />}
+              >
+                Your Courses
+              </Menu.Item>
 
-              toggleColorScheme();
-            }}
-            size={40}
-          >
-            {theme === "dark" ? <Sun size={24} /> : <MoonStars size={24} />}
+              <Menu.Label>Settings</Menu.Label>
+
+              <Form action="/logout" method="post">
+                <Menu.Item<"button"> icon={<Logout size={14} />} type="submit">
+                  Logout
+                </Menu.Item>
+              </Form>
+            </Menu>
+          ) : (
+            <>
+              <Button
+                component={Link}
+                className={classes.signUpButton}
+                color="pink"
+                to="/join"
+              >
+                Sign up
+              </Button>
+              <Button
+                component={Link}
+                className={classes.signInButton}
+                color="blue"
+                to="/login"
+              >
+                Sign in
+              </Button>
+            </>
+          )}
+
+          <ActionIcon onClick={() => toggleColorScheme()} size={40}>
+            {colorScheme === "dark" ? (
+              <Sun size={24} />
+            ) : (
+              <MoonStars size={24} />
+            )}
           </ActionIcon>
         </Group>
       </div>
