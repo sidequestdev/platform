@@ -5,6 +5,7 @@
 // as that new user.
 
 import { parse } from "cookie";
+import faker from "@faker-js/faker";
 import { installGlobals } from "@remix-run/node/globals";
 import { createUserSession } from "~/session.server";
 import { createUser } from "~/models/user.server";
@@ -19,7 +20,11 @@ async function createAndLogin(email: string) {
     throw new Error("All test emails must end in @example.com");
   }
 
-  const user = await createUser(email, "myreallystrongpassword");
+  const user = await createUser({
+    firstName: faker.name.firstName(),
+    email,
+    password: "myreallystrongpassword",
+  });
 
   const response = await createUserSession({
     request: new Request(""),
