@@ -24,7 +24,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 interface UserButtonProps extends React.ComponentPropsWithoutRef<"button"> {
-  image: string;
+  image?: string;
   name: string;
   email: string;
   icon?: React.ReactNode;

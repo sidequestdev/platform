@@ -236,11 +236,7 @@ export default function Courses() {
           <Navbar.Section className={classes.mobileUserInfo} hidden={!isMobile}>
             {user ? (
               <>
-                <UserInfo
-                  image="https://github.com/jakeklassen.png"
-                  name="Jake Klassen"
-                  email="jake@nullpointer.com"
-                />
+                <UserInfo name={user.firstName} email={user.email} />
 
                 <Form action="/logout" method="post">
                   <UnstyledButton
