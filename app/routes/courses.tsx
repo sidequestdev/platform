@@ -8,22 +8,27 @@ import {
   Group,
   Header,
   MediaQuery,
+  Menu,
   Navbar,
   ScrollArea,
   Text,
+  UnstyledButton,
   useMantineColorScheme,
   useMantineTheme,
 } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import type { LoaderFunction } from "@remix-run/node";
-import { Outlet, useLoaderData } from "@remix-run/react";
+import { Form, Link, Outlet, useLoaderData } from "@remix-run/react";
 import React, { useState } from "react";
-import { File, Folder, MoonStars, Sun } from "tabler-icons-react";
+import { Book, File, Folder, Logout, MoonStars, Sun } from "tabler-icons-react";
 import invariant from "tiny-invariant";
 import { Logo } from "~/components/Logo";
 import { LinksGroup } from "~/components/NavbarLinksGroup/NavbarLinksGroup";
 import { UserButton } from "~/components/UserButton/UserButton";
+import { UserInfo } from "~/components/UserInfo/UserInfo";
 import type { ToCItem } from "~/courses/course.server";
 import { getCourseTableOfContents } from "~/courses/course.server";
+import { useOptionalUser } from "~/utils";
 import { Theme, useTheme } from "~/utils/theme-provider";
 
 type LoaderData = Awaited<ReturnType<typeof getCourseTableOfContents>>;
@@ -87,10 +92,44 @@ const useStyles = createStyles((theme) => ({
     paddingBottom: theme.spacing.xl,
   },
 
+  link: {
+    display: "block",
+    lineHeight: 1,
+    padding: "8px 12px",
+    borderRadius: theme.radius.sm,
+    textDecoration: "none",
+    color:
+      theme.colorScheme === "dark"
+        ? theme.colors.dark[0]
+        : theme.colors.gray[7],
+    fontSize: theme.fontSizes.md,
+    fontWeight: 500,
+
+    "&:hover": {
+      backgroundColor:
+        theme.colorScheme === "dark"
+          ? theme.colors.dark[7]
+          : theme.colors.gray[0],
+    },
+
+    [theme.fn.smallerThan("md")]: {
+      borderRadius: 0,
+      padding: theme.spacing.md,
+    },
+  },
+
   footer: {
     marginLeft: -theme.spacing.md,
     marginRight: -theme.spacing.md,
     borderTop: `1px solid ${
+      theme.colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[3]
+    }`,
+  },
+
+  mobileUserInfo: {
+    marginLeft: -theme.spacing.md,
+    marginRight: -theme.spacing.md,
+    borderBottom: `1px solid ${
       theme.colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[3]
     }`,
   },
@@ -107,6 +146,12 @@ export function CourseShell({ page }: CourseShellProps) {
   const [theme, setTheme] = useTheme();
   const [opened, setOpened] = useState(false);
   const [selectedLink, setSelectedLink] = useState(page.slug);
+  const user = useOptionalUser();
+
+  const isMobile = useMediaQuery(
+    `(max-width: ${mantineTheme.breakpoints.sm}px)`,
+    false
+  );
 
   const toggleTheme = () => {
     setTheme((prevTheme) => {
@@ -175,16 +220,84 @@ export function CourseShell({ page }: CourseShellProps) {
             </Group>
           </Navbar.Section>
 
+          <Navbar.Section className={classes.mobileUserInfo} hidden={!isMobile}>
+            {user ? (
+              <>
+                <UserInfo
+                  image="https://github.com/jakeklassen.png"
+                  name="Jake Klassen"
+                  email="jake@nullpointer.com"
+                />
+
+                <Form action="/logout" method="post">
+                  <UnstyledButton
+                    type="submit"
+                    className={classes.link}
+                    style={{ width: "100%" }}
+                  >
+                    Logout
+                  </UnstyledButton>
+                </Form>
+              </>
+            ) : (
+              <>
+                <Link className={classes.link} to="/join">
+                  Sign up
+                </Link>
+                <Link className={classes.link} to="/login">
+                  Sign in
+                </Link>
+              </>
+            )}
+          </Navbar.Section>
+
           <Navbar.Section grow className={classes.links} component={ScrollArea}>
             <div className={classes.linksInner}>{links}</div>
           </Navbar.Section>
 
-          <Navbar.Section className={classes.footer}>
-            <UserButton
-              image="https://github.com/jakeklassen.png"
-              name="Jake Klassen"
-              email="jake@nullpointer.com"
-            />
+          <Navbar.Section className={classes.footer} hidden={isMobile}>
+            {user ? (
+              <Menu
+                size="lg"
+                position="right"
+                placement="start"
+                transition="pop-top-right"
+                styles={{
+                  root: {
+                    display: "block",
+                  },
+                }}
+                control={
+                  <UserButton name={user.firstName} email={user.email} />
+                }
+              >
+                <Menu.Item
+                  icon={<Book size={14} color={mantineTheme.colors.red[6]} />}
+                >
+                  Your Courses
+                </Menu.Item>
+
+                <Menu.Label>Settings</Menu.Label>
+
+                <Form action="/logout" method="post">
+                  <Menu.Item<"button">
+                    icon={<Logout size={14} />}
+                    type="submit"
+                  >
+                    Logout
+                  </Menu.Item>
+                </Form>
+              </Menu>
+            ) : (
+              <>
+                <Link className={classes.link} to="/login">
+                  Sign in
+                </Link>
+                <Link className={classes.link} to="/join">
+                  Sign up
+                </Link>
+              </>
+            )}
           </Navbar.Section>
         </Navbar>
       }

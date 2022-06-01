@@ -1,4 +1,3 @@
-import type { UnstyledButtonProps } from "@mantine/core";
 import {
   Avatar,
   createStyles,
@@ -6,7 +5,7 @@ import {
   Text,
   UnstyledButton,
 } from "@mantine/core";
-import React from "react";
+import React, { forwardRef } from "react";
 import { ChevronRight } from "tabler-icons-react";
 
 const useStyles = createStyles((theme) => ({
@@ -25,40 +24,41 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-// @ts-ignore
-interface UserButtonProps extends UnstyledButtonProps {
-  image: string;
+interface UserButtonProps extends React.ComponentPropsWithoutRef<"button"> {
+  image?: string;
   name: string;
   email: string;
   icon?: React.ReactNode;
 }
 
-export function UserButton({
-  image,
-  name,
-  email,
-  icon,
-  ...others
-}: UserButtonProps) {
-  const { classes } = useStyles();
+export const UserButton = forwardRef<HTMLButtonElement, UserButtonProps>(
+  function UserButton({ image, name, email, icon, ...others }, ref) {
+    const { classes } = useStyles();
 
-  return (
-    <UnstyledButton className={classes.user} {...others}>
-      <Group>
-        <Avatar src={image} radius="xl" />
+    return (
+      <UnstyledButton ref={ref} className={classes.user} {...others}>
+        <Group>
+          {image ? (
+            <Avatar src={image} radius="xl" />
+          ) : (
+            <Avatar src={image} radius="xl">
+              {name.at(0)}
+            </Avatar>
+          )}
 
-        <div style={{ flex: 1 }}>
-          <Text size="sm" weight={500}>
-            {name}
-          </Text>
+          <div style={{ flex: 1 }}>
+            <Text size="sm" weight={500}>
+              {name}
+            </Text>
 
-          <Text color="dimmed" size="xs">
-            {email}
-          </Text>
-        </div>
+            <Text color="dimmed" size="xs">
+              {email}
+            </Text>
+          </div>
 
-        {icon || <ChevronRight size={14} />}
-      </Group>
-    </UnstyledButton>
-  );
-}
+          {icon || <ChevronRight size={14} />}
+        </Group>
+      </UnstyledButton>
+    );
+  }
+);
