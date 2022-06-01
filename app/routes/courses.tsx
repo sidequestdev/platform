@@ -160,6 +160,9 @@ export default function Courses() {
   const [opened, setOpened] = useState(false);
   const [selectedLink, setSelectedLink] = useState(page.slug);
   const user = useOptionalUser();
+  const redirectTo = new URLSearchParams([
+    ["redirectTo", `/courses/${page.slug}`],
+  ]);
 
   const isMobile = useMediaQuery(
     `(max-width: ${mantineTheme.breakpoints.sm}px)`,
@@ -250,10 +253,10 @@ export default function Courses() {
               </>
             ) : (
               <>
-                <Link className={classes.link} to="/join">
+                <Link className={classes.link} to={`/join?${redirectTo}`}>
                   Sign up
                 </Link>
-                <Link className={classes.link} to="/login">
+                <Link className={classes.link} to={`/login?${redirectTo}`}>
                   Sign in
                 </Link>
               </>
@@ -330,7 +333,7 @@ export default function Courses() {
                     component={Link}
                     className={classes.signUpButton}
                     color="pink"
-                    to="/join"
+                    to={`/join?${redirectTo}`}
                   >
                     Sign up
                   </Button>
@@ -338,7 +341,7 @@ export default function Courses() {
                     component={Link}
                     className={classes.signInButton}
                     color="blue"
-                    to="/login"
+                    to={`/login?${redirectTo}`}
                   >
                     Sign in
                   </Button>
