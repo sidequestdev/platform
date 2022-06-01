@@ -1,6 +1,6 @@
 export const navbarLinks = [
   {
-    link: "#courses",
+    link: "/#courses",
     label: "Courses",
   },
   {
