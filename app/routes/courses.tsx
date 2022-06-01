@@ -2,6 +2,7 @@ import {
   ActionIcon,
   AppShell,
   Burger,
+  Button,
   Code as InlineCode,
   Container,
   createStyles,
@@ -133,6 +134,18 @@ const useStyles = createStyles((theme) => ({
       theme.colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[3]
     }`,
   },
+
+  signUpButton: {
+    [theme.fn.smallerThan("sm")]: {
+      display: "none",
+    },
+  },
+
+  signInButton: {
+    [theme.fn.smallerThan("sm")]: {
+      display: "none",
+    },
+  },
 }));
 
 interface CourseShellProps {
@@ -255,8 +268,8 @@ export function CourseShell({ page }: CourseShellProps) {
             <div className={classes.linksInner}>{links}</div>
           </Navbar.Section>
 
-          <Navbar.Section className={classes.footer} hidden={isMobile}>
-            {user ? (
+          {user ? (
+            <Navbar.Section className={classes.footer} hidden={isMobile}>
               <Menu
                 size="lg"
                 position="right"
@@ -288,17 +301,8 @@ export function CourseShell({ page }: CourseShellProps) {
                   </Menu.Item>
                 </Form>
               </Menu>
-            ) : (
-              <>
-                <Link className={classes.link} to="/login">
-                  Sign in
-                </Link>
-                <Link className={classes.link} to="/join">
-                  Sign up
-                </Link>
-              </>
-            )}
-          </Navbar.Section>
+            </Navbar.Section>
+          ) : null}
         </Navbar>
       }
       header={
@@ -324,6 +328,27 @@ export function CourseShell({ page }: CourseShellProps) {
             <Logo colorScheme={mantineTheme.colorScheme} />
 
             <Group>
+              {user ? null : (
+                <>
+                  <Button
+                    component={Link}
+                    className={classes.signUpButton}
+                    color="pink"
+                    to="/join"
+                  >
+                    Sign up
+                  </Button>
+                  <Button
+                    component={Link}
+                    className={classes.signInButton}
+                    color="blue"
+                    to="/login"
+                  >
+                    Sign in
+                  </Button>
+                </>
+              )}
+
               <ActionIcon onClick={toggleTheme} size={40}>
                 {theme === Theme.DARK ? (
                   <Sun size={24} />

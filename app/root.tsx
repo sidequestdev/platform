@@ -12,11 +12,7 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
-import { Footer } from "./components/Footer";
-import { HeaderResponsive } from "./components/Header";
 import { MantineTheme } from "./components/MantineTheme";
-import { footerData } from "./mocks/footer";
-import { navbarLinks } from "./mocks/navbar";
 import { getUser } from "./session.server";
 import type { Theme } from "./utils/theme-provider";
 import { ThemeProvider } from "./utils/theme-provider";
@@ -34,7 +30,6 @@ export const meta: MetaFunction = () => ({
 
 export type LoaderData = {
   theme: Theme | null;
-  coursePage: boolean;
   user: Awaited<ReturnType<typeof getUser>>;
 };
 
@@ -43,7 +38,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   const data: LoaderData = {
     theme: themeSession.getTheme(),
-    coursePage: request.url.includes("courses"),
     user: await getUser(request),
   };
 
@@ -62,18 +56,7 @@ export default function Root() {
       <body>
         <ThemeProvider specifiedTheme={data.theme}>
           <MantineTheme>
-            {/* If this is a course page, do NOT load the main app layout */}
-            {data.coursePage ? (
-              <Outlet />
-            ) : (
-              <>
-                <HeaderResponsive
-                  links={navbarLinks.filter((link) => link.hidden !== true)}
-                />
-                <Outlet />
-                <Footer data={footerData} />
-              </>
-            )}
+            <Outlet />
           </MantineTheme>
         </ThemeProvider>
 
