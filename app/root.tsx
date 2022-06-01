@@ -1,3 +1,4 @@
+import { Global } from "@mantine/core";
 import type {
   LinksFunction,
   LoaderFunction,
@@ -68,6 +69,13 @@ export default function Root() {
       >
         <ThemeProvider specifiedTheme={data.theme}>
           <MantineTheme>
+            <Global
+              styles={(theme) => ({
+                ":root": {
+                  colorScheme: theme.colorScheme,
+                },
+              })}
+            />
             {isCoursePage ? (
               <Outlet />
             ) : (
