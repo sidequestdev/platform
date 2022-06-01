@@ -62,17 +62,17 @@ export default function Root() {
         <Meta />
         <Links />
       </head>
-      <body
-        style={{
-          minHeight: "100vh",
-        }}
-      >
+      <body>
         <ThemeProvider specifiedTheme={data.theme}>
           <MantineTheme>
             <Global
               styles={(theme) => ({
                 ":root": {
                   colorScheme: theme.colorScheme,
+                },
+
+                body: {
+                  minHeight: "100vh",
                 },
               })}
             />
