@@ -63,7 +63,6 @@
     "remark-gfm": "^3.0.1",
     "remark-mdx-images": "^1.0.3",
     "tabler-icons-react": "^1.48.1",
-    "theme-change": "^2.0.2",
     "tiny-invariant": "^1.2.0",
     "unist-util-visit": "^4.1.0",
     "unist-util-visit-children": "^2.0.0",

@@ -11,7 +11,7 @@ const FileType = {
 
 type ExtendedStats = Stats & {
   extension: string;
-  type: typeof FileType.FILE | typeof FileType.DIRECTORY;
+  type: typeof FileType[keyof typeof FileType];
 };
 
 // Remove functions

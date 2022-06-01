@@ -1,5 +1,5 @@
 /**
- * A typeguarded version of `instanceof Error` for NodeJS.
+ * A type guarded version of `instanceof Error` for NodeJS.
  */
 export function instanceOfNodeError<T extends new (...args: any) => Error>(
   value: unknown,

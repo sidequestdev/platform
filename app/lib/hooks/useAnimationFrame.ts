@@ -15,7 +15,7 @@ export const useAnimationFrame = (cb: Callback, deps: React.DependencyList) => {
     const time = (hrt - init.current) / 1000;
     const delta = (hrt - last.current) / 1000;
 
-    // In seconds ~> you can do ms or anything in userland
+    // In seconds ~> you can do ms or anything in user land
     cb({ time, delta });
 
     last.current = hrt;

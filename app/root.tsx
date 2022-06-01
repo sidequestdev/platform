@@ -54,6 +54,10 @@ export default function Root() {
   const data = useLoaderData<LoaderData>();
   const params = useParams();
 
+  /**
+   * If we are in a `/courses/*` page, we dont' want the root layout
+   * to apply.
+   */
   const isCoursePage = "courseId" in params;
 
   return (

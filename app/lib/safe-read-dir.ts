@@ -15,7 +15,7 @@ export async function safeReadDir(path: string) {
     const isNodeError = instanceOfNodeError(error, TypeError);
 
     if (isNodeError && (error.code == "EACCES" || error.code == "EPERM")) {
-      //User does not have permissions, ignore directory
+      // User does not have permissions, ignore directory
       return null;
     } else {
       throw error;
