@@ -11,8 +11,13 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useParams,
 } from "@remix-run/react";
+import { Footer } from "./components/Footer";
+import { HeaderResponsive } from "./components/Header";
 import { MantineTheme } from "./components/MantineTheme";
+import { footerData } from "./mocks/footer";
+import { navbarLinks } from "./mocks/navbar";
 import { getUser } from "./session.server";
 import type { Theme } from "./utils/theme-provider";
 import { ThemeProvider } from "./utils/theme-provider";
@@ -46,6 +51,9 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function Root() {
   const data = useLoaderData<LoaderData>();
+  const params = useParams();
+
+  const isCoursePage = "courseId" in params;
 
   return (
     <html lang="en">
@@ -53,10 +61,24 @@ export default function Root() {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body
+        style={{
+          minHeight: "100vh",
+        }}
+      >
         <ThemeProvider specifiedTheme={data.theme}>
           <MantineTheme>
-            <Outlet />
+            {isCoursePage ? (
+              <Outlet />
+            ) : (
+              <>
+                <HeaderResponsive
+                  links={navbarLinks.filter((link) => link.hidden !== true)}
+                />
+                <Outlet />
+                <Footer data={footerData} />
+              </>
+            )}
           </MantineTheme>
         </ThemeProvider>
 

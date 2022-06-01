@@ -12,9 +12,10 @@ type LoaderData = Awaited<ReturnType<typeof getMdxPage>>;
 
 export const loader: LoaderFunction = async ({ params }) => {
   try {
+    invariant(params.courseId, "expected params.courseId");
     invariant(params["*"], "expected params.*");
 
-    const page = await getMdxPage(params["*"]);
+    const page = await getMdxPage(`${params.courseId}/${params["*"]}`);
 
     return page;
   } catch (error) {

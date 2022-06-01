@@ -36,9 +36,12 @@ type LoaderData = Awaited<ReturnType<typeof getCourseTableOfContents>>;
 
 export const loader: LoaderFunction = async ({ params }) => {
   try {
+    invariant(params.courseId, "expected params.courseId");
     invariant(params["*"], "expected params.*");
 
-    const pageData = await getCourseTableOfContents(params["*"]);
+    const pageData = await getCourseTableOfContents(
+      `${params.courseId}/${params["*"]}`
+    );
 
     return pageData;
   } catch (error) {
@@ -148,11 +151,8 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-interface CourseShellProps {
-  page: LoaderData;
-}
-
-export function CourseShell({ page }: CourseShellProps) {
+export default function Courses() {
+  const page = useLoaderData<LoaderData>();
   const mantineTheme = useMantineTheme();
   const { classes } = useStyles();
   const { toggleColorScheme } = useMantineColorScheme();
@@ -366,10 +366,4 @@ export function CourseShell({ page }: CourseShellProps) {
       </Container>
     </AppShell>
   );
-}
-
-export default function Courses() {
-  const page = useLoaderData<LoaderData>();
-
-  return <CourseShell page={page} />;
 }
