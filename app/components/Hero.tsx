@@ -123,7 +123,7 @@ export function Hero() {
         </h1>
 
         <Text className={classes.description} color="dimmed">
-          Join us while we level up our developer skills while learning all
+          Level up your developer skills while learning all
           about game development
         </Text>
 
