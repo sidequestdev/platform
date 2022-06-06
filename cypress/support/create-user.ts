@@ -5,7 +5,7 @@
 // as that new user.
 
 import { parse } from "cookie";
-import faker from "@faker-js/faker";
+import { faker } from "@faker-js/faker";
 import { installGlobals } from "@remix-run/node/globals";
 import { createUserSession } from "~/session.server";
 import { createUser } from "~/models/user.server";
