@@ -1,0 +1,26 @@
+---
+sidebar_position: 1
+title: Preface
+---
+
+# Preface
+
+Now that we have a functional bird with collision detection, it's time to add the pipes. We'll start by focusing on what goes into rendering the top and bottom pipes. Once we've created the pipe class, we'll move on to the pipe manager that will spawn pairs of pipes at a set interval.
+
+The scene will look something like this:
+
+<ThemeImage
+  alt="Pipes diagram"
+  width="327"
+  height="571"
+  light={{
+    src: "/images/courses/flappy-bird/05-adding-the-pipes/pipes-example-light.png",
+  }}
+  dark={{
+    src: "/images/courses/flappy-bird/05-adding-the-pipes/pipes-example-dark.png",
+  }}
+/>
+
+The pipe manager will spawn a top and bottom pipe at the same time with a small gap in between for the bird to flap through. Each pair of pipes will have the _same_ gap between them, but spawn at a different position relative to the previous pair. The horizontal line represents the current spawn position vertically.
+
+Let's get to it!
