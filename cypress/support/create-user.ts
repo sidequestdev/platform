@@ -6,7 +6,7 @@
 
 import { parse } from "cookie";
 import { faker } from "@faker-js/faker";
-import { installGlobals } from "@remix-run/node/globals";
+import { installGlobals } from "@remix-run/node";
 import { createUserSession } from "~/session.server";
 import { createUser } from "~/models/user.server";
 
