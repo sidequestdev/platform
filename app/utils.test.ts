@@ -1,3 +1,4 @@
+import { test, expect } from "vitest";
 import { validateEmail } from "./utils";
 
 test("validateEmail returns false for non-emails", () => {
