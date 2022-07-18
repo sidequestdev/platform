@@ -4,6 +4,7 @@
 module.exports = {
   cacheDirectory: "./node_modules/.cache/remix",
   ignoredRouteFiles: [".*", "**/*.css", "**/*.test.{js,jsx,ts,tsx}"],
+  watchPaths: ["./courses"],
   serverDependenciesToBundle: [
     "@mdx-js/esbuild",
     "bail",

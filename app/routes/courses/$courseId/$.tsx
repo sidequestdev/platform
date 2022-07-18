@@ -1,5 +1,5 @@
 import { Aside, Grid, MediaQuery } from "@mantine/core";
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { getMDXComponent } from "mdx-bundler/client";
 import React from "react";
@@ -8,9 +8,7 @@ import { MDXComponents } from "~/components/MDXComponents";
 import { TableOfContents } from "~/components/TableOfContents";
 import { getMdxPage } from "~/courses/course.server";
 
-type LoaderData = Awaited<ReturnType<typeof getMdxPage>>;
-
-export const loader: LoaderFunction = async ({ params }) => {
+export const loader = async ({ params }: LoaderArgs) => {
   try {
     invariant(params.courseId, "expected params.courseId");
     invariant(params["*"], "expected params.*");
@@ -28,7 +26,7 @@ export const loader: LoaderFunction = async ({ params }) => {
 };
 
 export default function Course() {
-  const page = useLoaderData<LoaderData>();
+  const page = useLoaderData<typeof loader>();
 
   const Component = React.useMemo(
     () => getMDXComponent(page.code),

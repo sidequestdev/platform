@@ -18,9 +18,9 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { Form, Link, Outlet, useLoaderData } from "@remix-run/react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Book, File, Folder, Logout, MoonStars, Sun } from "tabler-icons-react";
 import invariant from "tiny-invariant";
 import { Logo } from "~/components/Logo";
@@ -32,9 +32,7 @@ import { getCourseTableOfContents } from "~/courses/course.server";
 import { useOptionalUser } from "~/utils";
 import { Theme, useTheme } from "~/utils/theme-provider";
 
-type LoaderData = Awaited<ReturnType<typeof getCourseTableOfContents>>;
-
-export const loader: LoaderFunction = async ({ params }) => {
+export const loader = async ({ params }: LoaderArgs) => {
   try {
     invariant(params.courseId, "expected params.courseId");
     invariant(params["*"], "expected params.*");
@@ -152,7 +150,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export default function Courses() {
-  const page = useLoaderData<LoaderData>();
+  const page = useLoaderData<typeof loader>();
   const mantineTheme = useMantineTheme();
   const { classes } = useStyles();
   const { toggleColorScheme } = useMantineColorScheme();
