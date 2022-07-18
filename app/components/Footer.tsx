@@ -152,14 +152,14 @@ export function Footer({ data }: FooterProps) {
           <Logo colorScheme={colorScheme} />
 
           <Text size="xs" color="dimmed" className={classes.description}>
-            Build fully functional accessible web applications faster than ever
+            Explore the world of game development.
           </Text>
         </div>
         <div className={classes.groups}>{groups}</div>
       </Container>
       <Container className={classes.afterFooter}>
         <Text color="dimmed" size="sm">
-          © 2020 mantine.dev. All rights reserved.
+          © 2022 sidequest.dev. All rights reserved.
         </Text>
 
         <Group spacing={0} className={classes.social} position="right" noWrap>
