@@ -31,7 +31,7 @@ This project will be powered by [Vite](https://vitejs.dev/). We believe it's an 
 Why are we using Vite:
 
 - Static asset handling:
-  - `import imageUrl from './assets/images/image.png'`
+  - `import imageUrl from './assets/image/image.png'`
 - TypeScript support out of the box
 - Super fast
 
@@ -39,11 +39,11 @@ Why are we using Vite:
 
 ## What's Already Included
 
-We provide a `div#container` element that already contains a `<canvas>` tag. This leverages a small amount of CSS found in `styles.css` to position the canvas in the center of the screen and set it's background color to black.
+We provide a `div#container` element that already contains a `<canvas>` tag. This leverages a small amount of CSS found in `style.css` to position the canvas in the center of the screen and set it's background color to black.
 
 There are a number of config files for common tooling (eslint, prettier, npm, etc) that we've provided for you as well.
 
-The sprite sheet we'll use is located in `assets/images/spritesheet.png`. It is a single image we'll use to draw every asset in the game.
+The sprite sheet we'll use is located in `assets/image/spritesheet.png`. It is a single image we'll use to draw every asset in the game.
 
 An important file we've included is `src/sprite-map.ts`. It holds the sub-image information used to sample (take a piece of) sections of the larger sprite sheet. Don't worry about the details of this file just yet, we'll demonstrate it's usage later.
 
