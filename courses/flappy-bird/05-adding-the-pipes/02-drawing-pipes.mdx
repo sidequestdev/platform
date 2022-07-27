@@ -354,7 +354,25 @@ Now that we have pipes setup, let's go ahead and clean up `main.ts` and remove s
 
 First remove the two pipe instances:
 
-```ts title="src/main.ts" -{1-23}
+```ts title="src/main.ts" -{11,19-41}
+import spriteSheetUrl from "#/assets/image/spritesheet.png";
+import { BoxCollider } from "#/components/box-collider";
+import { CircleCollider } from "#/components/circle-collider";
+import { SpriteAnimation } from "#/components/sprite-animation";
+import { SpriteAnimationDetails } from "#/components/sprite-animation-details";
+import { SpriteData } from "#/components/sprite-data";
+import { Vector2d } from "#/components/vector2d";
+import { config } from "#/config";
+import { Bird } from "#/entities/bird";
+import { Ground } from "#/entities/ground";
+import { Pipe } from "#/entities/pipe";
+import { Game, GameState } from "#/game";
+import { loadImage } from "#/lib/asset-loader";
+import { circleRectangleIntersects } from "#/lib/collision";
+import { spriteMap } from "#/sprite-map";
+
+// ...
+
 const pipeTop = new Pipe({
   game,
   position: new Vector2d(
