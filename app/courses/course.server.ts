@@ -5,7 +5,7 @@ import path from "node:path";
 import remarkDirective from "remark-directive";
 import remarkGemoji from "remark-gemoji";
 import remarkGfm from "remark-gfm";
-import { remarkMdxImages } from "remark-mdx-images";
+import remarkMdxImages from "remark-mdx-images";
 import invariant from "tiny-invariant";
 import yaml from "yaml";
 import { directoryTree } from "~/lib/directory-tree";

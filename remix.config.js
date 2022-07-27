@@ -38,6 +38,7 @@ module.exports = {
     "remark-gemoji",
     "remark-gfm",
     "remark-mdx",
+    "remark-mdx-images",
     "remark-parse",
     "remark-rehype",
     "space-separated-tokens",
