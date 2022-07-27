@@ -18,6 +18,12 @@ interface CodeProps
    * @example `1 2 3 4`
    */
   "data-lines-added"?: string;
+
+  /**
+   * Array serialized as string
+   * @example `1 2 3 4`
+   */
+  "data-lines-deleted"?: string;
 }
 
 const deleted = { color: "red", label: "-" };
@@ -61,12 +67,21 @@ export const Code = (props: CodeProps) => {
 
   const title = props["data-title"];
   const linesAdded = props["data-lines-added"]?.split(" ") ?? [];
+  const linesDeteled = props["data-lines-deleted"]?.split(" ") ?? [];
 
   const highlightLines = {
     ...linesAdded.reduce(
       (lines, line) => ({
         ...lines,
         [line]: added,
+      }),
+      {}
+    ),
+
+    ...linesDeteled.reduce(
+      (lines, line) => ({
+        ...lines,
+        [line]: deleted,
       }),
       {}
     ),

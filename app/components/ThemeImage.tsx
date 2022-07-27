@@ -1,4 +1,5 @@
-import { Image, ImageProps, useMantineColorScheme } from "@mantine/core";
+import type { ImageProps } from "@mantine/core";
+import { Image, useMantineColorScheme } from "@mantine/core";
 
 type ThemeImageProps = {
   alt: string;

@@ -15,6 +15,11 @@ const titleRegExp = /title="(?<title>(.*))"/i;
  */
 const linesAddedRegExp = /\+{(?<lines>[0-9,-]*)}/i;
 
+/**
+ * Should be in the format `-{1,2-10,12}` to add lines
+ */
+const linesDeletedRegExp = /\-{(?<lines>[0-9,-]*)}/i;
+
 const rehypeCodeDetails: Plugin<[], Root> = () => {
   return (tree, file) => {
     visit(tree, { type: "element", tagName: "code" }, (node: Element) => {
@@ -31,6 +36,9 @@ const rehypeCodeDetails: Plugin<[], Root> = () => {
 
         const linesAdded =
           node.data.meta.match(linesAddedRegExp)?.groups?.lines;
+
+        const linesDeleted =
+          node.data.meta.match(linesDeletedRegExp)?.groups?.lines;
 
         if (linesAdded != null) {
           const lines = linesAdded
@@ -53,6 +61,29 @@ const rehypeCodeDetails: Plugin<[], Root> = () => {
             .sort((a, b) => a - b);
 
           node.properties["data-lines-added"] = lines;
+        }
+
+        if (linesDeleted != null) {
+          const lines = linesDeleted
+            .split(",")
+            .map((numStr) => numStr.trim())
+            .flatMap((input) => {
+              const numbers = input.split("-");
+
+              if (numbers[0] === input) {
+                return parseInt(input);
+              }
+
+              const [start, end] = numbers.map((number) => parseInt(number));
+
+              return Array.from(
+                { length: end - start + 1 },
+                (_, key) => start + key
+              );
+            })
+            .sort((a, b) => a - b);
+
+          node.properties["data-lines-deleted"] = lines;
         }
       }
     });
