@@ -1,0 +1,56 @@
+---
+sidebar_position: 2
+title: Pipe Breakdown
+---
+
+# Pipe Breakdown
+
+We're going to draw each pipe in two parts:
+
+- The rim (top and bottom)
+- The body
+
+The reason we'll do this is because we want to be able to draw pipes with varying heights as they spawn randomly.
+
+If you're thinking we could have two full height pipe assets in the sprite sheet and just _move_ it up and down to draw the different heights, you'd be right, but I want to demonstrate how we can use a single pixel high source image to draw the different heights. This has the added benefit of not wasting so much space in the sprite sheet as well (which is arguably not an issue is such a small game).
+
+<AlertInfo title="Single Pipe Asset">
+  In the technique mentioned above, you could also have 1 full height pipe asset
+  and rotate it for the opposite pipe.
+</AlertInfo>
+
+Here's an exmaple if we stored two pipes at full height in the sprite sheet, and moved them up and down:
+
+<ThemeImage
+  alt="Pipes with full sprites example"
+  width="396"
+  height="581"
+  light={{
+    src: "/images/courses/flappy-bird/05-adding-the-pipes/pipes-with-full-sprite-example-light.png",
+  }}
+  dark={{
+    src: "/images/courses/flappy-bird/05-adding-the-pipes/pipes-with-full-sprite-example-dark.png",
+  }}
+/>
+
+Here's an example of the same thing, but with the pipes using a sliced image:
+
+<ThemeImage
+  alt="Pipes with sliced sprite example"
+  width="383"
+  height="395"
+  light={{
+    src: "/images/courses/flappy-bird/05-adding-the-pipes/pipes-with-sliced-sprite-example-light.png",
+  }}
+  dark={{
+    src: "/images/courses/flappy-bird/05-adding-the-pipes/pipes-with-sliced-sprite-example-dark.png",
+  }}
+/>
+
+The sprite map is already setup for this use case.
+
+## Pipe Types
+
+We'll have two pipe types: `top` and `bottom`. Depending on which type of pipe we're drawing, we'll use a different rim sprite. Pipes will also know which _direction_ the body needs to be drawn in based on this type.
+
+When the pipe type is `top`, the body with be drawn towards `0` - the top of the canvas. When the pipe type is `bottom`, the body will be drawn towards `config.gameHeight` - the bottom of the canvas.

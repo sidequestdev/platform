@@ -1,65 +1,11 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
 title: Drawing Pipes
 ---
 
 # Drawing Pipes
 
-Our goal for this section will be to two draw two pipes. Both pipes will be positioned in the center along the x-axis, and will be spaced apart vertically along the y-axix by a distance of 50 pixels in both directions (up and down).
-
-## Pipe Breakdown
-
-We're going to draw each pipe in two parts:
-
-- The rim (top and bottom)
-- The body
-
-The reason we'll do this is because we want to be able to draw pipes with varying heights as they spawn randomly.
-
-If you're thinking we could have two full height pipe assets in the sprite sheet and just _move_ it up and down to draw the different heights, you'd be right, but I want to demonstrate how we can use a single pixel high source image to draw the different heights. This has the added benefit of not wasting so much space in the sprite sheet as well (which is arguably not an issue is such a small game).
-
-<AlertInfo title="Single Pipe Asset">
-  In the technique mentioned above, you could also have 1 full height pipe asset
-  and rotate it for the opposite pipe.
-</AlertInfo>
-
-Here's an exmaple if we stored two pipes at full height in the sprite sheet, and moved them up and down:
-
-<ThemeImage
-  alt="Pipes with full sprites example"
-  width="396"
-  height="581"
-  light={{
-    src: "/images/courses/flappy-bird/05-adding-the-pipes/pipes-with-full-sprite-example-light.png",
-  }}
-  dark={{
-    src: "/images/courses/flappy-bird/05-adding-the-pipes/pipes-with-full-sprite-example-dark.png",
-  }}
-/>
-
-Here's an example of the same thing, but with the pipes using a sliced image:
-
-<ThemeImage
-  alt="Pipes with sliced sprite example"
-  width="383"
-  height="395"
-  light={{
-    src: "/images/courses/flappy-bird/05-adding-the-pipes/pipes-with-sliced-sprite-example-light.png",
-  }}
-  dark={{
-    src: "/images/courses/flappy-bird/05-adding-the-pipes/pipes-with-sliced-sprite-example-dark.png",
-  }}
-/>
-
-The sprite map is already setup for this use case.
-
-## Pipe Types
-
-We'll have two pipe types: `top` and `bottom`. Depending on which type of pipe we're drawing, we'll use a different rim sprite. Pipes will also know which _direction_ the body needs to be drawn in based on this type.
-
-When the pipe type is `top`, the body with be drawn towards `0` - the top of the canvas. When the pipe type is `bottom`, the body will be drawn towards `config.gameHeight` - the bottom of the canvas.
-
-## Pipe Class
+## Pipe Entity
 
 Lets create a new `Pipe` entity:
 
@@ -98,13 +44,13 @@ export class Pipe {
 }
 ```
 
-Nothing new here except our usage of a TypeScript union type.
+Not much new here except our usage of a TypeScript union type.
 
 <AlertInfo title="Unions">Add blurb about `"top" | "bottom"`</AlertInfo>
 
 ## Pipe Positioning
 
-Before we instantiate our pipes, I want to talk a little bit about how we're going to position them. We'll describe the positions _relative_ to the center of the canvas - which will later be substituted for our spawn point. More importantly, relative to the `y` position of the center of the canvas.
+Before we instantiate our pipes, I want to talk a little bit about how we're going to position them. We'll describe the positions _relative_ to the center of the canvas - which will later be substituted for our spawn point. More importantly, relative to the `y` position of the center of the canvas. I call out `y` because later we'll spawn the pipes off screen in `x` so they can _scroll_ into the gameplay area.
 
 This feels more intuitive than describing the top left corners of the images we'll be drawing. The pipes will handle the details in the `draw` method.
 
@@ -171,6 +117,8 @@ let last = performance.now();
 Note our positions. For the top and bottom pipe, we use the same `x` position of: `config.gameWidth / 2 - spriteMap.pipes.green.slice.width / 2`. Half the game width minus half the width of the slice sprite.
 
 The `y` position is very similar. Half the game height plus/minus the buffer of `50` pixels.
+
+Note that we pass the rim sprite data that is opposite the pipe _type_. So when we draw a `top` pipe, we draw the `bottom` rim sprite. And vice versa.
 
 ## Drawing a Few Helpers
 
@@ -290,7 +238,7 @@ We draw the rim of the pipe at a slightly different `y` position, based on the `
 
 Recall that the destination position we provide to `drawImage` is the top left corner of the image, that's why we perform this adjustment.
 
-If you look at the canvas, you should see the pipe rim drawn at the correct position. Right in line with our reference lines.
+If you look at the canvas, you should see the pipe rims drawn at the correct positions. Right in line with our reference lines.
 
 ## Drawing the Pipe Body
 
@@ -342,86 +290,8 @@ export class Pipe {
 }
 ```
 
-Rather than some clever use of the ternary operator, we just split these draw calls with an `if` statement.
+Let's start with the top. We need the body of the pipe to be drawn from a `y` position of `0`, and a hieght of _pipe_ `height` minus `rimSpriteData.height`. Try removing `- this.rimSpriteData.height` and you'll see how the body is now in front of the pipe rim. Drawing the body last was intentional to help callout potential rendering issues overlapping the rim.
 
-Let's start with the top. We need the body of the pipe to be drawn from a `y` position of `0`, and a hieght of _pipe_ `height` minus `rimSpriteData.height`. Try removing `- this.rimSpriteData.height` and you'll see how the body is now in front of the pipe rim.
+When we draw the bottom, we need the body to be drawn from the `y` position and offset positively (down) by `rimSpriteData.height` with a height of _pipe_ `height` minus `rimSpriteData.height`. Technically we don't need to subtract the `rimSpriteData.height` from the destination height. It would just draw off the bottom of the canvas, but we'll leave it for consistency sake.
 
-When we draw the bottom, we need the body to be drawn from the `y` position and offset positively (down) by `rimSpriteData.height` with a height of _pipe_ `height` minus `rimSpriteData.height`. Technically we don't need the `this.rimSpriteData.height` part. It would just draw off the bottom of the canvas, but we'll leave it for consistency sake.
-
-## Cleanup
-
-Now that we have pipes setup, let's go ahead and clean up `main.ts` and remove some code.
-
-First remove the two pipe instances:
-
-```ts title="src/main.ts" -{11,19-41}
-import spriteSheetUrl from "#/assets/image/spritesheet.png";
-import { BoxCollider } from "#/components/box-collider";
-import { CircleCollider } from "#/components/circle-collider";
-import { SpriteAnimation } from "#/components/sprite-animation";
-import { SpriteAnimationDetails } from "#/components/sprite-animation-details";
-import { SpriteData } from "#/components/sprite-data";
-import { Vector2d } from "#/components/vector2d";
-import { config } from "#/config";
-import { Bird } from "#/entities/bird";
-import { Ground } from "#/entities/ground";
-import { Pipe } from "#/entities/pipe";
-import { Game, GameState } from "#/game";
-import { loadImage } from "#/lib/asset-loader";
-import { circleRectangleIntersects } from "#/lib/collision";
-import { spriteMap } from "#/sprite-map";
-
-// ...
-
-const pipeTop = new Pipe({
-  game,
-  position: new Vector2d(
-    config.gameWidth / 2 - spriteMap.pipes.green.slice.width / 2,
-    config.gameHeight / 2 - 50
-  ),
-  rimSpriteData: spriteMap.pipes.green.bottom,
-  sliceSpriteData: spriteMap.pipes.green.slice,
-  spriteSheet,
-  type: "top",
-});
-
-const pipeBottom = new Pipe({
-  game,
-  position: new Vector2d(
-    config.gameWidth / 2 - spriteMap.pipes.green.slice.width / 2,
-    config.gameHeight / 2 + 50
-  ),
-  rimSpriteData: spriteMap.pipes.green.top,
-  sliceSpriteData: spriteMap.pipes.green.slice,
-  spriteSheet,
-  type: "bottom",
-});
-```
-
-Then tidy up the `frame` function:
-
-```ts title="src/main.ts" -{2,3,6-19}
-bird.draw(context);
-pipeTop.draw(context);
-pipeBottom.draw(context);
-ground.draw(context);
-
-const x = config.gameWidth / 2 - spriteMap.pipes.green.slice.width / 2;
-const y = config.gameHeight / 2;
-const buffer = 50;
-const lineLength = 65;
-
-// Where the bottom of the top pipe will be
-context.fillStyle = "red";
-context.fillRect(x, y - buffer, lineLength, 1);
-// Center of the canvas (our spawn point)
-context.fillStyle = "purple";
-context.fillRect(x, y, lineLength, 1);
-// Where the top of the bottom pipe will be
-context.fillStyle = "red";
-context.fillRect(x, y + buffer, lineLength, 1);
-```
-
-## Conclusion
-
-There you have it! Two well placed, rendered pipes. Next we'll move onto the pipe manager.
+Lets move on to adding some colliders.
