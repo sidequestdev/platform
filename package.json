@@ -41,7 +41,7 @@
     "@remix-run/server-runtime": "^1.6.5",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.0.1",
-    "esbuild": "^0.14.50",
+    "esbuild": "^0.14.51",
     "front-matter": "^4.0.2",
     "github-slugger": "^1.4.0",
     "hast-util-to-string": "^2.0.0",
