@@ -196,6 +196,25 @@ We haven't talked about [`clearRect()`](https://developer.mozilla.org/en-US/docs
   Try removing the call to `clearCanvas()` and see what happens.
 </AlertTip>
 
+## Clean Up
+
+Now that we're drawing in the game loop, let's remove the original background drawing code outside the `frame` function.
+
+```typescript title="src/main.ts" -{1-13}
+// Draw the background
+context.drawImage(
+  spriteSheet,
+  spriteMap.background.sourceX,
+  spriteMap.background.sourceY,
+  spriteMap.background.width,
+  spriteMap.background.height,
+  0,
+  0,
+  spriteMap.background.width,
+  spriteMap.background.height
+);
+```
+
 ## Final Observations
 
 You might notice the ground is scrolling _quite_ fast. This is because we're scrolling the ground at `2` pixels **per frame**. So if your monitor is 60hz, that's 120 pixels per second. If you're at 120hz, that's 240, and so on. This isn't going to scale well. We can't have the game experience differing so drastically due to display hardware.
