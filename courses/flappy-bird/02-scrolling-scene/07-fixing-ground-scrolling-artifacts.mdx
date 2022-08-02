@@ -1,0 +1,47 @@
+---
+sidebar_position: 7
+title: Fixing Ground Scrolling Artifacts
+---
+
+# Fixing Ground Scrolling Artifacts
+
+Now that we have delta time we need to fix an issue with a visible artifact when rendering the scrolling ground.
+
+## Ground Scrolling Artifact
+
+When you look back at the canvas you're likely going to see a visual artifact on the ground as it scrolls. It's highlighted in red below:
+
+<ThemeImage
+  alt="Scrolling the ground diagram"
+  width="352"
+  height="576"
+  light={{
+    src: "/images/courses/flappy-bird/02-scrolling-scene/non-floored-diff-value.png",
+  }}
+  dark={{
+    src: "/images/courses/flappy-bird/02-scrolling-scene/non-floored-diff-value.png",
+  }}
+/>
+
+The cause of this is our `diff` value. If you recall, this value is calculated by: `diff = Math.abs(this.scrollPositionX)`, and in turn `scrollPositionX` comes from `this.scrollSpeed * delta`. So `scrollPositionX` can be a floating point value. This is why we see this artifact. We use `diff` to help sample the sprite sheet, but since it's fractional we're getting a partial sample. We never want to sample _part_ of a sprite , so we'll floor the `diff` value.
+
+## Update the Code
+
+Let's update the line of code that calculates `diff` to floor the value:
+
+```ts title="src/entities/ground.ts" +{7,8}
+export class Ground {
+  // ...
+
+  public draw(context: CanvasRenderingContext2D) {
+    // scrollPositionX is constantly in the negative direction, so we need to
+    // get the absolute value for the sampling below.
+    // We also need to floor the value to avoid sampling a partial sprite.
+    const diff = Math.floor(Math.abs(this.scrollPositionX));
+  }
+
+  // ...
+}
+```
+
+Now the artifact should be gone and the ground should be scrolling as expected.

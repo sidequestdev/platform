@@ -38,7 +38,7 @@ Once we have calculated the delta time, it's pretty easy to leverage it. We'll a
 
 Update the `scrollSpeed` back in `main.ts`:
 
-```typescript {5} title="src/main.ts"
+```typescript title="src/main.ts" +{5}
 const ground = new Ground({
   position: new Vector2d(0, config.gameHeight - spriteMap.ground.height),
   frame: spriteMap.ground,
@@ -49,7 +49,7 @@ const ground = new Ground({
 
 Then modify the `update()` method of the `Ground` class:
 
-```typescript {4-5} title="src/entities/ground.ts"
+```typescript title="src/entities/ground.ts" +{4-5}
 export class Ground {
   // ...
 
@@ -71,7 +71,7 @@ That's it for the `Ground` class.
 
 Next, we need to calculate delta time in the game loop and pass it along:
 
-```typescript {1,3-4,8,25} title="src/main.ts"
+```typescript title="src/main.ts" +{1,3-4,8,25}
 let last = performance.now();
 
 const frame = (hrt: DOMHighResTimeStamp) => {
